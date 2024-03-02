@@ -6,14 +6,6 @@ import {
     signOut,
     signInWithEmailAndPassword
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import {
-    getFirestore,
-    collection,
-    addDoc,
-    getDocs,
-    setDoc,
-    doc
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
