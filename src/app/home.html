@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="login-block" class="login-block">
+    <div>
+        <div id="loadingDivParent" class="loadingDivParent">
+            <div>Loading...</div>
+        </div>
+        <div class="signOutCont">
+            <button type='button' id="signOutButton" class="signOutButton">Sign Out</button>
+        </div>
+        <div class="head">
+            <div class="headChild">
+                Chat
+            </div>
+        </div>
+        <div class="mainCont">
+            <div style="width: 80%">
+                <div id="messagesArea" class="messageArea">
+                    <div id="receivedMessage" class="receivedMessage">
+                        <div style="display: flex; justify-content: center; align-items: center; width: 60px; height: 100%">
+                            <div style="width: 45px; height: 45px; background-image: url(images/userImages/userImageWoman.jpg); background-size: 100%; border: 0 solid; border-radius: 50px">
+                            </div>
+                        </div>
+                        <div style="min-width: 260px; height: 100%; background-color: #e5e6ea; border-radius: 20px">
+                        <span>
+                            <div style="padding: 3px; margin: 11px; max-width: 260px; color: black">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aut commodi deleniti dolore doloremque earum expedita harum minus nam necessitatibus officia quaerat quod, reiciendis repellendus, saepe sed tempore, ullam voluptates? Non.</div>
+                        </span>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <form id="form">
+                    <div style="display: flex; justify-content: space-between">
+                        <div style="width: 90%; display: flex">
+                            <label for="messageInput"></label>
+                            <input type="text" id="messageInput" class="messageInput" placeholder="Input message">
+                        </div>
+                        <div style="display: flex; align-items: center">
+                            <input type="submit" class="button sendButton" id="sendButton" value="">
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="module" src="home.js"></script>
+</body>
+</html>

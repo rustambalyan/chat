@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="style.css" rel="stylesheet">
+
+    <title id="title">Registration</title>
+</head>
+<body>
+<div style="border-radius: 12px; width: 400px; height: auto; background-color: white">
+    <div>
+        <div style="display: flex; justify-content: center; border-bottom: 1px solid lightgray;">
+            <div style="display: flex; justify-content: center; align-items: center; height: 60px; user-select: none">
+                Registration
+            </div>
+        </div>
+        <div style="display: flex; justify-content: center; padding: 16px 0">
+            <div style="width: 80%">
+                <form class="form" id="form">
+                    <span>
+                        <label for="firstName">First Name</label>
+                    </span>
+                    <div id="firstNameDiv" style="padding: 5px 0 5px">
+                        <input type="text" id="firstName" name="firstName" class="input">
+                    </div>
+                    <span>
+                        <label for="lastName">Last Name</label>
+                    </span>
+                    <div id="lastNameDiv" style="padding: 5px 0 5px">
+                        <input type="text" id="lastName" name="lastName" class="input">
+                    </div>
+                    <span>
+                        <label for="email">Enter Your Email</label>
+                    </span>
+                    <div id="divForEmailField">
+                        <div style="padding: 5px 0 5px" id="emailDiv">
+                            <input type="text" id="email" name="email" class="input">
+                        </div>
+                    </div>
+                    <span>
+                        <label for="password">Enter New Password</label>
+                    </span>
+                    <div style="padding: 5px 0 5px" id="passwordDiv">
+                        <input type="password" id="password" name="password" class="input">
+                    </div>
+                    <span>
+                        <label for="confirmPassword">Confirm Your Password</label>
+                    </span>
+                    <div style="padding: 5px 0 5px" id="confirmPasswordDiv">
+                        <input type="password" id="confirmPassword" name="confirmPassword" class="input">
+                    </div>
+                    <div style="margin: 15px 0 15px 0">
+                        <input type="submit" class="button" id="signUp" name="signUp_submit" value="Sign up">
+                    </div>
+                </form>
+                <div style="text-align: center; font-size: small; padding-bottom: 10px">
+                    <span>Already registered?</span>
+                    <a href="index.html">
+                        <span>Sign In</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="module" src="reg.js"></script>
+</body>
+</html>

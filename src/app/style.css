@@ -1,0 +1,207 @@
+body {
+    position: absolute;
+    margin: 0;
+    padding: 0;
+    background-color: darkgray;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: "Arial Unicode MS", sans-serif;
+}
+
+.button {
+    margin: 5px 0;
+    padding: 0 16px;
+    min-width: 100%;
+    height: 32px;
+    border: 0;
+    border-radius: 16px;
+    font-size: 14px;
+    line-height: 32px;
+    color: blue;
+    text-align: center;
+    user-select: none;
+    transition: box-shadow .1s ease-in, background-color .1s ease-in;
+    background-color: #e3eef8;
+    cursor: pointer;
+}
+
+.sendButton {
+    width: 30px;
+    height: 25px;
+    padding: 0;
+    margin: 0;
+    background: url('/src/app/imagesages/icons/send.png') no-repeat scroll 0 0 transparent;
+    background-size: 30px 25px;
+    border-radius: 0;
+}
+
+.form {
+    margin: 5px;
+}
+
+.i {
+    background-image: url("images/icons/google_32.svg");
+}
+
+.social-icon {
+    width: 100px;
+    height: 100px;
+}
+
+.input {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    white-space: nowrap;
+    background-color: #e9ecef;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    outline: none;
+}
+
+.cantLogin {
+    text-decoration: none;
+    color: black;
+    /*cursor: pointer;*/
+}
+
+/*.modal{*/
+/*    display: none;*/
+/*    position: absolute;*/
+/*    width: 100%;*/
+/*    height: 100%;*/
+/*    background-color: rgba(128, 128, 128, 0.8);*/
+/*}*/
+
+.modal {
+    display: block;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.child {
+    display: flex;
+    top: 50%;
+    left: 50%;
+    width: 350px;
+    height: 200px;
+    background: white;
+    position: absolute;
+    transform: translate(-50%, -50%);
+}
+
+.button-close {
+    box-sizing: content-box;
+    width: 1em;
+    height: 1em;
+    color: #000;
+    background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") center/1em auto no-repeat;
+    border: 0;
+    border-radius: 0.25rem;
+    opacity: 0.5;
+    cursor: pointer;
+    padding-right: 10px;
+}
+
+.signOutButton {
+    margin-right: 15px;
+    background-color: white;
+    border-radius: 6px;
+    border: 0 solid
+}
+
+.divForCloseButton {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    position: absolute;
+    width: 100%;
+    height: 30px;
+}
+
+.messageInput {
+    min-width: 100%;
+    box-sizing: border-box;
+    padding-left: 15px;
+    border: none;
+    border-radius: 30px;
+    background-color: #e5e6ea;
+    height: 30px;
+    resize: none;
+}
+
+.messageInput:focus {
+    outline: none;
+}
+
+.messageArea {
+    max-height: 200px;
+    overflow-x: hidden;
+    overflow-y: visible;
+}
+
+.head {
+    display: flex;
+    justify-content: center;
+    border-bottom: 1px solid lightgray;
+}
+
+.headChild {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 60px;
+    user-select: none
+}
+
+.login-block {
+    border-radius: 12px;
+    width: 400px;
+    height: auto;
+    background-color: white
+}
+
+.loadingDivParent {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 400px;
+    height: 350px;
+    border-radius: 20px;
+    position: absolute;
+    background-color: #ffffff;
+    opacity: 100%
+}
+
+.signOutCont {
+    position: absolute;
+    width: 400px;
+    height: 60px;
+    display: flex;
+    justify-content: right;
+    align-items: center
+}
+
+.mainCont {
+    display: flex;
+    justify-content: center;
+    padding: 16px 0
+}
+
+.receivedMessage {
+    display: flex;
+    align-items: flex-end;
+    width: auto;
+    min-height: 60px
+}
