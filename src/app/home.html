@@ -12,7 +12,9 @@
 <div id="login-block" class="login-block">
     <div>
         <div id="loadingDivParent" class="loadingDivParent">
-            <div>Loading...</div>
+            <div>
+                <img src="images/animations/loading-animation-200px.svg" alt="loading">
+            </div>
         </div>
         <div class="signOutCont">
             <button type='button' id="signOutButton" class="signOutButton">Sign Out</button>
@@ -21,21 +23,27 @@
             <div class="headChild">
                 Chat
             </div>
+            <div class="selectUserParent">
+                <div class="selectUser" id="user1">
+                    <div style="width: 45px; height: 45px; background-image: url(images/userImages/userImageMan.jpg); background-size: 100%; border-radius: 50%"></div>
+                    <div style="font-size: 12px">
+                        <p class="overflow-ellipsis">User1</p>
+                    </div>
+<!--                    <button id="addToFriendListButton">add</button>-->
+<!--                    <button id="openChatButton">Chat</button>-->
+
+                </div>
+                <div class="selectUser" id="user2">
+                    <div style="width: 45px; height: 45px; background-image: url(images/userImages/userImageWoman.jpg); background-size: 100%; border-radius: 50%"></div>
+                    <div style="font-size: 12px">
+                        <p class="overflow-ellipsis">User2</p>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="mainCont">
             <div style="width: 80%">
                 <div id="messagesArea" class="messageArea">
-                    <div id="receivedMessage" class="receivedMessage">
-                        <div style="display: flex; justify-content: center; align-items: center; width: 60px; height: 100%">
-                            <div style="width: 45px; height: 45px; background-image: url(images/userImages/userImageWoman.jpg); background-size: 100%; border: 0 solid; border-radius: 50px">
-                            </div>
-                        </div>
-                        <div style="min-width: 260px; height: 100%; background-color: #e5e6ea; border-radius: 20px">
-                        <span>
-                            <div style="padding: 3px; margin: 11px; max-width: 260px; color: black">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aut commodi deleniti dolore doloremque earum expedita harum minus nam necessitatibus officia quaerat quod, reiciendis repellendus, saepe sed tempore, ullam voluptates? Non.</div>
-                        </span>
-                        </div>
-                    </div>
                 </div>
                 <br>
                 <form id="form">
@@ -53,6 +61,13 @@
         </div>
     </div>
 </div>
+<div id="chat-container">
+    <!-- Сообщения будут отображаться здесь -->
+</div>
+<!--<form id="message-form">-->
+<!--    <input type="text" id="message-input" placeholder="Введите сообщение">-->
+<!--    <button type="submit">Отправить</button>-->
+<!--</form>-->
 <script type="module" src="home.js"></script>
 </body>
 </html>

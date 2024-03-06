@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import {initializeApp, onLog} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import {getDatabase, get, ref, child, set} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import {getDatabase, get, ref, child} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 import {
     getAuth,
     signOut,
@@ -20,8 +20,9 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getDatabase();
-const dbRef = ref(db)
+const dbRt = getDatabase();
+const dbRef = ref(dbRt)
+
 
 const email = document.getElementById('email');
 const password = document.getElementById('password');
@@ -32,8 +33,8 @@ function openErrorEmail(arg) {
     email.style.borderColor = "red";
     const errorEmailSpan = document.createElement('span');
     errorEmailSpan.id = 'emailError';
-    if (arg && arg === 'inUse') {
-        errorEmailSpan.innerText = `This email '${email.value}' already registered`;
+    if (arg && arg === 'user-not-found') {
+        errorEmailSpan.innerText = `User '${email.value}' not found`;
         email.value = '';
         email.addEventListener('click', () => {
             let emailError = document.getElementById('emailError');
@@ -103,20 +104,25 @@ let signIn = evt => {
     if (checkIfError() === true) {
         signInWithEmailAndPassword(auth, email.value, password.value)
             .then((credentials) => {
-                get(child(dbRef, 'usersAuthList/' + credentials.user.uid)).then((snapshot) => {
-                    if (snapshot.exists) {
+                get(child(dbRef, 'usersList/' + credentials.user.uid)).then((snapshot) => {
+                    if (snapshot.exists()) {
                         sessionStorage.setItem('user-info', JSON.stringify({
                             firstName: snapshot.val().firstName,
-                            lastName: snapshot.val().lastName
+                            lastName: snapshot.val().lastName,
                         }));
                         sessionStorage.setItem('user-creds', JSON.stringify(credentials.user));
                         window.location.href = 'home.html'
                     }
+                }).catch((err) => {
+                    let error = err
                 })
             })
             .catch((err) => {
-                const error = err.code;
-                console.log(error)
+                switch (err.code) {
+                    case 'auth/invalid-credential': {
+                        openErrorEmail('user-not-found')
+                    }
+                }
             })
     }
 }

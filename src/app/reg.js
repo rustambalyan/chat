@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import {getAuth, createUserWithEmailAndPassword} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import {getDatabase, set, ref} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import {getDatabase, set, push, ref} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
 
 // Your web app's Firebase configuration
@@ -24,8 +24,8 @@ const form = document.getElementById('form');
 const email = document.getElementById('email');
 const password = document.getElementById('password');
 const confirmPassword = document.getElementById('confirmPassword');
-const firstName = document.getElementById('firstName');
-const lastName = document.getElementById('lastName');
+const firstName = document.getElementById('firstNameInput');
+const lastName = document.getElementById('lastNameInput');
 
 function openErrorFirstName() {
     const firstNameDiv = document.getElementById("firstNameDiv");
@@ -184,11 +184,13 @@ let signUp = evt => {
     if (checkIfError() === true) {
         createUserWithEmailAndPassword(auth, email.value, password.value)
             .then((credentials) => {
-                set(ref(db, 'usersAuthList/' + credentials.user.uid), {
+                push(ref(db, 'usersList/' + credentials.user.uid), {
                     firstName: firstName.value,
-                    lastName: lastName.value
+                    lastName: lastName.value,
+                    uId: credentials.user.uid,
+                }).then(() => {
+                    window.location.href = 'index.html';
                 })
-                window.location.href = 'index.html'
             }).catch(err => {
             const error = err.code;
             switch (error) {

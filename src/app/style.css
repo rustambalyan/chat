@@ -33,7 +33,7 @@ body {
     height: 25px;
     padding: 0;
     margin: 0;
-    background: url('/src/app/imagesages/icons/send.png') no-repeat scroll 0 0 transparent;
+    background: url('/src/app/images/icons/send.png') no-repeat scroll 0 0 transparent;
     background-size: 30px 25px;
     border-radius: 0;
 }
@@ -66,7 +66,7 @@ body {
     outline: none;
 }
 
-.cantLogin {
+a {
     text-decoration: none;
     color: black;
     /*cursor: pointer;*/
@@ -154,7 +154,7 @@ body {
 .head {
     display: flex;
     justify-content: center;
-    border-bottom: 1px solid lightgray;
+    flex-direction: column;
 }
 
 .headChild {
@@ -162,13 +162,32 @@ body {
     justify-content: center;
     align-items: center;
     height: 60px;
-    user-select: none
+    user-select: none;
+}
+
+.selectUserParent {
+    display: flex;
+    flex-direction: row;
+    height: 70px;
+    border-top: 1px solid lightgray;
+    border-bottom: 1px solid lightgray;
+}
+
+.selectUser {
+    width: 60px;
+    height: 70px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 0 5px 0;
+    cursor: pointer;
 }
 
 .login-block {
     border-radius: 12px;
     width: 400px;
-    height: auto;
+    min-height: 415px;
     background-color: white
 }
 
@@ -177,7 +196,7 @@ body {
     justify-content: center;
     align-items: center;
     width: 400px;
-    height: 350px;
+    min-height: 430px;
     border-radius: 20px;
     position: absolute;
     background-color: #ffffff;
@@ -196,7 +215,9 @@ body {
 .mainCont {
     display: flex;
     justify-content: center;
-    padding: 16px 0
+    align-items: flex-end;
+    padding: 16px 0;
+    min-height: 273px;
 }
 
 .receivedMessage {
@@ -204,4 +225,21 @@ body {
     align-items: flex-end;
     width: auto;
     min-height: 60px
+}
+
+p {
+    font-size: 12px;
+    width: 60px;
+
+    /* Both of the following are required for text-overflow */
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.overflow-ellipsis {
+    text-overflow: ellipsis;
+    margin: 0;
+    padding: 0;
+    display: inline;
+    justify-content: center;
 }
