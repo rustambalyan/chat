@@ -51,7 +51,7 @@ let checkCred = () => {
     }
 }
 
-window.addEventListener('load', () => checkCred)
+window.addEventListener('load', () => checkCred())
 signOutButton.addEventListener('click', signOut);
 
 /////////////////////////////////////////////////////////////////////
