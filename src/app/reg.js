@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import {getAuth, createUserWithEmailAndPassword} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import {getDatabase, set, push, ref} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import {getDatabase, set, ref} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
 
 // Your web app's Firebase configuration
@@ -184,10 +184,10 @@ let signUp = evt => {
     if (checkIfError() === true) {
         createUserWithEmailAndPassword(auth, email.value, password.value)
             .then((credentials) => {
-                push(ref(db, 'usersList/' + credentials.user.uid), {
+                set(ref(db, 'usersList/' + credentials.user.uid), {
                     firstName: firstName.value,
                     lastName: lastName.value,
-                    uId: credentials.user.uid,
+                    uId: credentials.user.uid
                 }).then(() => {
                     window.location.href = 'index.html';
                 })

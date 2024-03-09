@@ -165,25 +165,6 @@ a {
     user-select: none;
 }
 
-.selectUserParent {
-    display: flex;
-    flex-direction: row;
-    height: 70px;
-    border-top: 1px solid lightgray;
-    border-bottom: 1px solid lightgray;
-}
-
-.selectUser {
-    width: 60px;
-    height: 70px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    margin: 0 5px 0;
-    cursor: pointer;
-}
-
 .login-block {
     border-radius: 12px;
     width: 400px;
@@ -227,19 +208,104 @@ a {
     min-height: 60px
 }
 
-p {
-    font-size: 12px;
-    width: 60px;
+.span {
+    color: black;
+}
 
-    /* Both of the following are required for text-overflow */
+.span:hover {
+    text-decoration: underline;
+    color: #2f2f2f;
+}
+
+.userInfo {
+    margin: 20px;
+
+}
+
+/*.userImage {*/
+/*    width: 50%;*/
+/*    position: absolute;*/
+
+/*}*/
+
+.addPhotoInput {
+    display: none;
+    background-image: url("images/icons/add-photo.svg");
+}
+
+.userPhotoContainer {
+    border: 1px solid grey;
+    width: 128px;
+    height: 128px;
+    max-width: 128px;
+    max-height: 128px;
+    background-size: 128px 128px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+.userPhoto {
+    display: none;
+    cursor: pointer;
+    width: 50%;
+}
+.userPhotoContainer:hover {
+    .userPhoto {
+        display: block;
+        cursor: pointer;
+        width: 50%;
+    }
+}
+.userFullNameDiv{
+    display: flex;
+    justify-content: center;
+    width: 128px;
+    max-width: 128px;
+    color: #1e1d1d;
+}
+
+.userFullNameSpanMini {
     white-space: nowrap;
     overflow: hidden;
 }
 
-.overflow-ellipsis {
-    text-overflow: ellipsis;
-    margin: 0;
-    padding: 0;
-    display: inline;
+.userFullNameSpan{
+    white-space: nowrap;
+    overflow: hidden;
+}
+.createChatButtonDiv{
+    position: absolute;
+}
+.messageIcon{
+    display: none;
+    width: 25px;
+    height: 25px
+}
+.selectUserParent {
+    display: flex;
+    flex-direction: row;
+    height: 70px;
+    border-top: 1px solid lightgray;
+    border-bottom: 1px solid lightgray;
+}
+
+.selectUser {
+    width: 60px;
+    height: 70px;
+    display: flex;
+    flex-direction: column;
     justify-content: center;
+    align-items: center;
+    margin: 0 5px 0;
+    cursor: pointer;
+}
+.selectUser:hover {
+    width: 58px;
+    height: 68px;
+    border: 1px solid lightgray;
+    border-radius: 5px;
+    .messageIcon{
+        display: block;
+    }
 }

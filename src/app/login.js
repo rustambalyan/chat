@@ -3,7 +3,7 @@ import {initializeApp, onLog} from "https://www.gstatic.com/firebasejs/10.8.0/fi
 import {getDatabase, get, ref, child} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 import {
     getAuth,
-    signOut,
+    sendPasswordResetEmail,
     signInWithEmailAndPassword
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
@@ -106,15 +106,25 @@ let signIn = evt => {
             .then((credentials) => {
                 get(child(dbRef, 'usersList/' + credentials.user.uid)).then((snapshot) => {
                     if (snapshot.exists()) {
-                        sessionStorage.setItem('user-info', JSON.stringify({
-                            firstName: snapshot.val().firstName,
-                            lastName: snapshot.val().lastName,
-                        }));
+                        //
+                        // let ents = Object.entries(snapshot.val());
+                        // if(ents.length >= 2) {
+                        //     let key1 = ents[0];
+                        //     let key2 = ents[1];
+                        //     let firstName = key1[1].firstName;
+                        //     let lastName = key1[1].lastName;
+                        // }
+                            sessionStorage.setItem('user-info', JSON.stringify({
+                                firstName: snapshot.val().firstName,
+                                lastName: snapshot.val().lastName,
+                            }));
+
+
                         sessionStorage.setItem('user-creds', JSON.stringify(credentials.user));
                         window.location.href = 'home.html'
                     }
                 }).catch((err) => {
-                    let error = err
+                    console.log(err)
                 })
             })
             .catch((err) => {
@@ -128,5 +138,3 @@ let signIn = evt => {
 }
 
 form.addEventListener('submit', signIn);
-
-
