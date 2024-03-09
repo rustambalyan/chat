@@ -41,12 +41,21 @@ const storage = getStorage(app)
 // const uId = JSON.parse(sessionStorage.getItem('user-creds'));
 const signOutButton = document.getElementById('signOutButton');
 const loadingDiv = document.getElementById('loadingDivParent');
-const createChatButtonDiv = document.getElementById('createChatButtonDiv');
+// const createChatButtonDiv = document.querySelectorAll('.createChatButtonDiv');
 const addPhotoIcon = document.getElementById('addPhotoIcon');
 const addPhotoInput = document.getElementById('addPhotoInput');
 const userPhotoContainer = document.getElementById('userPhotoContainer');
 const userFullNameDiv = document.getElementById('userFullNameDiv');
 const selectUserParent = document.getElementById('selectUserParent');
+const userFullNameSpanMini = document.getElementById('userFullNameSpanMini');
+const userFullNameSpan = document.createElement('span');
+const json = JSON.parse(sessionStorage.getItem('user-info'));
+userFullNameSpan.innerText = json.firstName + ' ' + json.lastName;
+userFullNameSpan.style.textOverflow = 'ellipsis';
+userFullNameSpan.style.whiteSpace = 'nowrap';
+userFullNameSpan.className = 'userFullNameSpan'
+userFullNameDiv.appendChild(userFullNameSpan);
+
 /////////////////////////////////////////////////////////////////////
 let signOut = evt => {
     sessionStorage.removeItem('user-creds');
@@ -60,7 +69,6 @@ let checkCred = () => {
     }
 }
 
-window.addEventListener('load', () => checkCred())
 signOutButton.addEventListener('click', signOut);
 
 /////////////////////////////////////////////////////////////////////
@@ -128,34 +136,17 @@ async function jsParseInfo() {
     return await JSON.parse(sessionStorage.getItem('user-info'));
 }
 
-
-function setUser() {
-    set(ref(dbRt, 'usersList/'), {
-        users: [{
-            firstName: 'Vaxo',
-            lastName: 'Xachatryan',
-            uID: 'ThisIsUserUID',
-            messages: [
-                'hello russo', 'es lav em'
-            ]
-        }]
-    })
-}
-
 let recipientId = '';
 
-function sendMessage(message) {
+function sendMessage(message, recipientId) {
     jsParseCreds().then(val => val.uid).then((uid) => {
-        get(ref(dbRt, 'chatLists/' + uid + recipientId + '/messages/')).then((snap) => {
-            if (!snap.exists) {
-                set(ref(dbRt, 'chatLists/' + uid + recipientId + '/messages/' + Date.now()), {
-                    text: message,
-                    timeStamp: Date.now()
-                });
-            }
-        })
+        if(recipientId){
+            set(ref(dbRt, 'chatsList/' + uid + recipientId + '/messages/' + Date.now()), {
+                text: message,
+                timeStamp: Date.now()
+            })
+        }
     })
-
 }
 
 function displayMessage(message) {
@@ -168,58 +159,54 @@ function displayMessage(message) {
 
 form.addEventListener('submit', (evt) => {
     evt.preventDefault();
-    jsParseCreds().then(() => {
-        let message = messageInput.value;
-        const messageText = messageInput.value.trim();
-        if (messageText !== '') {
-            sendMessage(message);
-            messageInput.value = ''
-        }
-    });
-
+    let message = messageInput.value;
+    const messageText = messageInput.value.trim();
+    if (messageText !== '') {
+        sendMessage(message);
+        messageInput.value = ''
+    }
 })
 
+
 window.addEventListener("load", () => {
-    const messagesArea = document.getElementById('messagesArea');
-    const noMessages = document.createElement('div');
-    if (messagesArea.childNodes.length === 1) {
-        noMessages.id = 'noMessages'
-        noMessages.innerHTML = `
+    getUsersFromServer()
+    checkCred();
+    jsParseCreds().then((res) => {
+        console.log(recipientId)
+        onChildAdded(ref(dbRt, 'chatsList/' + res.uid + recipientId + '/messages/'), (snap) => {
+            console.log('asd')
+            if (snap.exists) {
+                displayMessage(snap.val().text);
+                scrollBottom()
+            }
+        })
+        setTimeout(() => loadingDiv.remove(), 1500)
+
+        const messagesArea = document.getElementById('messagesArea');
+        const noMessages = document.createElement('div');
+        if (messagesArea.childNodes.length === 1) {
+            noMessages.id = 'noMessages'
+            noMessages.innerHTML = `
            <div style="width: 320px; height: 200px; display: flex; justify-content: center; align-items: center ">
                 <span>There are no messages</span>
             </div>
         `
-        messagesArea.appendChild(noMessages);
-        setTimeout(() => loadingDiv.remove(), 1500)
-
-    } else {
-        jsParseCreds().then((res) => {
-            noMessages.remove();
+            messagesArea.appendChild(noMessages);
+            setTimeout(() => loadingDiv.remove(), 1500);
+        } else {
             onChildAdded(ref(dbRt, 'chatsList/' + res.uid + recipientId + '/messages/'), (snap) => {
+                console.log(snap.val(), 'asd')
                 if (snap.exists) {
                     displayMessage(snap.val().text);
                     scrollBottom()
                 }
-                loadingDiv.remove();
             })
             setTimeout(() => loadingDiv.remove(), 1500)
-        })
-
-    }
-    jsParseCreds().then((res) => {
-        onChildAdded(ref(dbRt, 'chatsList/' + res.uid + recipientId + '/messages/'), (snap) => {
-            if (snap.exists) {
-                console.log(snap.val())
-                displayMessage(snap.val().text);
-                scrollBottom()
-            }
-            noMessages.remove();
-        })
+        }
     })
+});
 
-})
 
-createChatButtonDiv?.addEventListener('click', sendMessage)
 ///////////////////////////////////////////////////////////////////////
 
 // const fileInput = document.getElementById('fileInput');
@@ -274,7 +261,6 @@ createChatButtonDiv?.addEventListener('click', sendMessage)
 function getFile() {
     addPhotoInput.addEventListener("change", async (res) => {
         const file = await res.srcElement.files[0];
-        console.log(res);
         upload(file)
     });
 }
@@ -316,7 +302,6 @@ function func() {
 
 window.onload = () => {
     jsParseCreds().then((res) => {
-        console.log(res.uid)
         get(ref(dbRt, 'usersList/' + res.uid + '/userPhoto')).then((r) => {
             if (r.exists()) {
                 userPhotoContainer.style.background = `url(${r.val().userPhotoURL})`;
@@ -329,7 +314,6 @@ window.onload = () => {
             }
         })
     })
-    getUsersFromServer()
 }
 
 addPhotoIcon.addEventListener("click", addPhoto);
@@ -339,58 +323,97 @@ function addPhoto() {
     getFile()
 }
 
-const userFullNameSpan = document.createElement('span');
 
-const json = JSON.parse(sessionStorage.getItem('user-info'));
-
-userFullNameSpan.innerText = json.firstName + ' ' + json.lastName;
-userFullNameSpan.style.textOverflow = 'ellipsis';
-userFullNameSpan.style.whiteSpace = 'nowrap';
-userFullNameSpan.className = 'userFullNameSpan'
-
-
-userFullNameDiv.appendChild(userFullNameSpan);
+// class registeredUser{
+//     constructor(firstName, lastName, recipientId, userPhotoURL) {
+//         this.firstName = firstName;
+//         this.lastName = lastName;
+//         this.recipientId = recipientId;
+//         this.userPhotoURL = userPhotoURL
+//     }
+// }
 
 function getUsersFromServer() {
     get(ref(dbRt, 'usersList/')).then((snap) => {
         let ents = Object.entries(snap.val());
         if (ents.length !== 0) {
-            ents.forEach((res) => {
+            ents.map((res) => {
                 const uid = res[0];
-                const firstName = res[1].firstName;
-                const lastName = res[1].lastName
-
-                recipientId = res[0];
-                get(ref(dbRt, 'usersList/' + uid + '/userPhoto')).then((snap) => {
-                    const userPhotoURL = snap.val().userPhotoURL;
-                    const json = JSON.parse(sessionStorage.getItem('user-info'));
-                    let divv = document.createElement('div');
-                    divv.innerHTML = getRegisteredUser(userPhotoURL, firstName, lastName)
-                    selectUserParent.appendChild(divv)
+                get(ref(dbRt, 'usersList/' + uid)).then((snap) => {
+                    const firstName = snap.val().firstName;
+                    const lastName = snap.val().lastName
+                    recipientId = res[0];
+                    const userPhotoURL = snap.val().userPhoto?.userPhotoURL;
+                    let userInfoMini = document.createElement('div');
+                    userInfoMini.innerHTML = getRegisteredUser(userPhotoURL, firstName, lastName, recipientId);
+                    selectUserParent.appendChild(userInfoMini);
                 })
             })
         }
     })
 }
 
-function getRegisteredUser(userPhotoURL, firstName, lastName) {
+function getRegisteredUser(userPhotoURL, firstName, lastName, recipientId) {
     return `
-                    <div class="selectUser" id="user1">
-                    <div style="width: 45px; height: 45px; background-image: url(${userPhotoURL}); background-size: 100%; border-radius: 50%"></div>
-                    <div style="font-size: 12px">
-                        <span style="white-space: nowrap; overflow: hidden" class="userFullNameSpanMini" id="userFullNameSpanMini">${firstName} ${lastName}</span>
+                    <div class="selectUser" id="${recipientId}">
+                        <div style="width: 45px; height: 45px; background-image: url(${userPhotoURL}); background-size: 100%; border-radius: 50%">
+                        </div>
+                        <div style="width: 70px; max-width: 50px;">
+                            <span style="display: inline-block; justify-content: center; font-size: 10px; max-width: 60px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="userFullNameSpanMini">${firstName} ${lastName}</span>
+                        </div>
                     </div>
-                    <div class="createChatButtonDiv" id="createChatButtonDiv">
-                        <img src="images/icons/message.svg" alt="messageIcon" class="messageIcon">
-                    </div>
-                </div>
 `
 }
 
-let userFullNameSpanMini = document.getElementById('userFullNameSpanMini');
-userFullNameSpanMini.style.textOverflow = 'ellipsis';
-userFullNameSpanMini.style.whiteSpace = 'nowrap';
-userFullNameSpanMini.className = 'userFullNameSpanMini'
+selectUserParent.addEventListener('click', (event) => {
+    let rec = event.target.closest('[id]').id
+    if (rec !== 'selectUserParent') {
+        if (rec !== 'userFullNameSpanMini')
+            recipientId = rec;
+            console.log(rec);
+        createChat(rec)
+    }
+});
+
+function createChat(recipientId) {
+    jsParseCreds().then(val => val.uid).then((uid) => {
+        get(ref(dbRt, 'chatsList/' + uid + recipientId)).then((snap) => {
+                if (!snap.exists()) {
+                    set(ref(dbRt, 'chatsList/' + uid + recipientId + '/messages/' + Date.now()), {
+                        text: 'Welcome to chat',
+                        timeStamp: Date.now()
+                    })
+                } else {
+                    jsParseCreds().then(val => val.uid).then((uid) => {
+                        onChildAdded(ref(dbRt, 'chatsList/' + uid + recipientId + '/messages/'), (snap) => {
+                            if (snap.exists) {
+                                displayMessage(snap.val().text);
+                                scrollBottom()
+                            }
+                        })
+                        setTimeout(() => loadingDiv.remove(), 1500)
+                    })
+                }
+            }
+        )
+    })
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
