@@ -187,8 +187,9 @@ let signUp = evt => {
                 set(ref(db, 'usersList/' + credentials.user.uid), {
                     firstName: firstName.value,
                     lastName: lastName.value,
-                    uId: credentials.user.uid
+                    uid: credentials.user.uid
                 }).then(() => {
+                    window.location.href = 'index.html';
                     window.location.href = 'index.html';
                 })
             }).catch(err => {

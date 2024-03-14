@@ -2,13 +2,33 @@ body {
     position: absolute;
     margin: 0;
     padding: 0;
-    background-color: darkgray;
+    background-color: #e8e5e5;
     height: 100%;
     width: 100%;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     font-family: "Arial Unicode MS", sans-serif;
+}
+
+.page {
+    display: flex;
+    flex-direction: column;
+
+}
+
+.pageChild {
+    display: flex;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid grey;
+    width: 100%;
+    height: 60px;
+    background-color: #2660ad;
 }
 
 .button {
@@ -116,9 +136,20 @@ a {
 
 .signOutButton {
     margin-right: 15px;
-    background-color: white;
     border-radius: 6px;
-    border: 0 solid
+    border: 0 solid;
+    background: none;
+    cursor: pointer;
+    color: white;
+}
+
+.signOutButton:hover {
+    margin-right: 15px;
+    border-radius: 6px;
+    border: 0 solid;
+    background: none;
+    transition-delay: .1s;
+    color: #e8e8ef;
 }
 
 .divForCloseButton {
@@ -165,9 +196,10 @@ a {
     user-select: none;
 }
 
-.login-block {
+.content-block {
     border-radius: 12px;
     width: 400px;
+    margin-top: 10px;
     min-height: 415px;
     background-color: white
 }
@@ -199,6 +231,7 @@ a {
     align-items: flex-end;
     padding: 16px 0;
     min-height: 273px;
+    margin: 20px;
 }
 
 .receivedMessage {
@@ -218,8 +251,35 @@ a {
 }
 
 .userInfo {
-    margin: 20px;
+    margin: 10px 20px 0 0;
+    border-radius: 5px;
 
+}
+
+ul {
+    list-style-type: none;
+    padding-inline-start: 1px;
+    margin: 0
+
+}
+
+li {
+    text-align: center;
+    list-style: none;
+    padding: 7px 0
+
+}
+li:hover {
+    text-align: left;
+    list-style: none;
+    background: #cccccc;
+    border-radius: 5px;
+
+    animation-duration: 100ms;
+}
+.li-a-span{
+    margin-left: 32px;
+    font-size: 1.1rem;
 }
 
 /*.userImage {*/
@@ -235,6 +295,7 @@ a {
 
 .userPhotoContainer {
     border: 1px solid grey;
+    border-radius: 15px;
     width: 128px;
     height: 128px;
     max-width: 128px;
@@ -250,6 +311,7 @@ a {
     cursor: pointer;
     width: 50%;
 }
+
 .userPhotoContainer:hover {
     .userPhoto {
         display: block;
@@ -257,12 +319,16 @@ a {
         width: 50%;
     }
 }
-.userFullNameDiv{
+
+.userFullNameDiv {
     display: flex;
-    justify-content: center;
+    justify-content: left;
     width: 128px;
     max-width: 128px;
+    min-height: 25px;
     color: #1e1d1d;
+    margin-top: 10px;
+    padding-left: 3px;
 }
 
 .userFullNameSpanMini {
@@ -270,22 +336,25 @@ a {
     overflow: hidden;
 }
 
-.userFullNameSpan{
+.userFullNameSpan {
     white-space: nowrap;
     overflow: hidden;
 }
-.createChatButtonDiv{
+
+.createChatButtonDiv {
     position: absolute;
 }
-.messageIcon{
+
+.messageIcon {
     display: none;
     width: 25px;
     height: 25px
 }
+
 .selectUserParent {
     display: flex;
     flex-direction: row;
-    height: 70px;
+    min-height: 70px;
     border-top: 1px solid lightgray;
     border-bottom: 1px solid lightgray;
 }
@@ -300,12 +369,74 @@ a {
     margin: 0 5px 0;
     cursor: pointer;
 }
+
 .selectUser:hover {
     width: 58px;
     height: 68px;
     border: 1px solid lightgray;
     border-radius: 5px;
-    .messageIcon{
+
+    .messageIcon {
         display: block;
+    }
+}
+
+.item {
+    /* Общие стили для элементов */
+    padding: 10px;
+    border: 1px solid #ccc;
+}
+
+.item.selected {
+    /* Стили для выделенного элемента */
+    background-color: #f0f0f0;
+    font-weight: bold;
+}
+
+.logo{
+    background: url("images/icons/logo.png") no-repeat;
+    background-size: 60px;
+    width: 60px;
+    height: 60px;
+    margin-left: 12px;
+}
+.nading_cukan {
+    width: 120px;
+    background: #eae6e6;
+}
+.description .string{
+    background: #d9d9d9;
+    border-radius: 10px;
+    height: 17px;
+    margin: 2px 0;
+    overflow: hidden;
+    position: relative;
+}
+.description .string1{
+    background: #d9d9d9;
+    border-radius: 10px;
+    height: 17px;
+    margin: 2px 0;
+    overflow: hidden;
+    position: relative;
+}
+
+.description .string::before,
+.skeleton .kutal::before{
+    position: absolute;
+    content: "";
+    height: 100%;
+    width: 100%;
+    background-image: linear-gradient(to right, #cecbcb 0%, rgba(0,0,0,0.05) 20%, #d2cfcf 40%, #d9d9d9 100%);
+    background-repeat: no-repeat;
+    background-size: 448px 398px;
+    animation: shimmer 1s linear infinite;
+}
+@keyframes shimmer {
+    0%{
+        background-position: -450px 0;
+    }
+    100%{
+        background-position: 450px 0;
     }
 }

@@ -9,47 +9,75 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="userInfo">
-    <div class="userPhotoContainer" id="userPhotoContainer">
-        <input type="file" id="addPhotoInput" class="addPhotoInput">
-        <img src="images/icons/add-photo.svg" alt="addPhoto" id="addPhotoIcon" class="userPhoto">
-    </div>
-    <div class="userFullNameDiv" id="userFullNameDiv"></div>
-
-</div>
-<div id="login-block" class="login-block">
-    <div>
-        <div id="loadingDivParent" class="loadingDivParent">
-            <div>
-                <img src="images/animations/loading-animation-200px.svg" alt="loading">
-            </div>
+<div class="page">
+    <div class="header">
+        <div class="logoParent">
+            <a href="#">
+                <div class="logo"></div>
+            </a>
         </div>
-        <div class="signOutCont">
+        <div class="signOutContp">
             <button type='button' id="signOutButton" class="signOutButton">Sign Out</button>
         </div>
-        <div class="head">
-            <div class="headChild">
-                Chat
-            </div>
-            <div class="selectUserParent" id="selectUserParent">
-            </div>
-        </div>
-        <div class="mainCont">
-            <div style="width: 80%">
-                <div id="messagesArea" class="messageArea">
+    </div>
+    <div class="pageChild">
+        <div class="userInfo">
+            <div>
+                <div class="userPhotoContainer" id="userPhotoContainer">
+                    <input type="file" id="addPhotoInput" class="addPhotoInput">
+                    <img src="images/icons/add-photo.svg" alt="addPhoto" id="addPhotoIcon" class="userPhoto">
                 </div>
-                <br>
-                <form id="form">
-                    <div style="display: flex; justify-content: space-between">
-                        <div style="width: 90%; display: flex">
-                            <label for="messageInput"></label>
-                            <input type="text" id="messageInput" class="messageInput" placeholder="Input message">
-                        </div>
-                        <div style="display: flex; align-items: center">
-                            <input type="submit" class="button sendButton" id="sendButton" value="">
+                <div class="userFullNameDiv" id="userFullNameDiv">
+                    <div class="nading_cukan" id="nading">
+                        <div class="description">
+                            <div class="string"></div>
                         </div>
                     </div>
-                </form>
+                </div>
+                <hr>
+                <div class="menu">
+                    <ul>
+                        <li><a href="home.html"><div style='margin-left: 3px; display: flex; align-items: center; width: 20px; height: 20px; background: url("images/icons/home.svg"); background-size: 20px'><span class="li-a-span">Home</span></div></a></li>
+                        <li><a href="#"><div style='margin-left: 3px; display: flex; align-items: center; width: 20px; height: 20px; background: url("images/icons/mode-landscape.svg"); background-size: 20px'><span class="li-a-span">Photos</span></div></a></li>
+                        <li><a href="#"><div style='margin-left: 3px; display: flex; align-items: center; width: 20px; height: 20px; background: url("images/icons/settings-sliders.svg"); background-size: 20px'><span class="li-a-span">Settings</span></div></a></li>
+                        <li><a href="#"><div style='margin-left: 3px; display: flex; align-items: center; width: 20px; height: 20px; background: url("images/icons/info.svg"); background-size: 20px'><span class="li-a-span">About</span></div></a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div id="content-block" class="content-block">
+            <div>
+                <!--        <div id="loadingDivParent" class="loadingDivParent">-->
+                <!--            <div>-->
+                <!--                <img src="images/animations/loading-animation-200px.svg" alt="loading">-->
+                <!--            </div>-->
+                <!--        </div>-->
+                <div class="head">
+                    <div class="headChild">
+                        Chat
+                    </div>
+                    <div class="selectUserParent" id="selectUserParent">
+                    </div>
+                </div>
+                <div class="mainCont">
+                    <div style="width: 80%">
+                        <div id="messagesArea" class="messageArea">
+                        </div>
+                        <br>
+                        <form id="form">
+                            <div style="display: flex; justify-content: space-between">
+                                <div style="width: 90%; display: flex">
+                                    <label for="messageInput"></label>
+                                    <input type="text" id="messageInput" class="messageInput"
+                                           placeholder="Input message">
+                                </div>
+                                <div style="display: flex; align-items: center">
+                                    <input type="submit" class="button sendButton" id="sendButton" value="">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
