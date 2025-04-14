@@ -19,6 +19,7 @@ import {
     getDownloadURL
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
+
 // Your web app's Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyAcjkoMZcttxOBHOFqITeg0ajyFJhCx9OY",
@@ -32,18 +33,18 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const dbRt = getDatabase();
-const dbRef = ref(dbRt);
+const db = getDatabase();
+const dbRef = ref(db);
 const auth = getAuth();
 const storage = getStorage(app);
 let firstName = '';
 let lastName = '';
 // let usersUid = '';
-let userPhotoURL = '';
+let signedInUserPhotoUrl = '';
+let recipientPhotoUrl = '';
 let recipientId = '';
-let isClicked = true;
-let messageId = ''
+let isClicked = false;
+let messageId = '';
 
 
 const signOutButton = document.getElementById('signOutButton');
@@ -57,7 +58,9 @@ const userFullNameDiv = document.getElementById('userFullNameDiv');
 const messagesArea = document.getElementById('messagesArea');
 const sendButton = document.getElementById('sendButton');
 const form = document.getElementById('form');
-const signedInUserUid = JSON.parse(sessionStorage.getItem('user-creds')).uid;
+let loading = document.getElementById('loading');
+
+getSignedInUserUid()
 
 
 /////////////////////////////////////////////////////////////////////
@@ -129,36 +132,33 @@ const signedInUserUid = JSON.parse(sessionStorage.getItem('user-creds')).uid;
 // userFullNameSpanMini.style.whiteSpace = 'nowrap';
 // userFullNameSpanMini.className = 'userFullNameSpanMini'
 
-
 window.onload = () => {
     checkCred();
-    get(ref(dbRt, 'usersList/')).then((snap) => {
+    get(ref(db, 'usersList/')).then((snap) => {
         snap.forEach(el => {
             let s = el.val();
             let userPhotoURL = 'images/userImages/userImageMan.jpg';
             if (s.userPhoto !== undefined) {
                 userPhotoURL = s.userPhoto.userPhotoURL;
+                recipientPhotoUrl = s.userPhoto.userPhotoURL;
             }
             const usersUid = s.uid;
             const userInfoMini = document.createElement('div');
             userInfoMini.innerHTML = `
                     <div class="selectUser" id="${usersUid}">
                     <div style="width: 45px; height: 45px; background-image: url(${userPhotoURL}); background-size: 100%; border-radius: 50%" id="${usersUid}"></div>
-                    <div style="display: inline-block; font-size: 10px" id="${usersUid}">
-                        <span style="display: inline-block; max-width: 60px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden" id="${usersUid}">${s.firstName} ${s.lastName}</span>
-                    </div>
-                    <div class="createChatButtonDiv" id="${usersUid}">
-                        <img src="images/icons/message.svg" alt="messageIcon" class="messageIcon" id="${usersUid}">
-                    </div>
-                    </div>
+                        <span style="display: inline-block; max-width: 60px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; font-size: 10px" id="${usersUid}">${s.firstName} ${s.lastName}</span>
 `;
-            selectUserParent.appendChild(userInfoMini);
+            if (s.uid !== getSignedInUserUid()) {
+                selectUserParent.appendChild(userInfoMini);
+            }
 
 
-            get(ref(dbRt, 'usersList/' + signedInUserUid + '/userPhoto')).then((snp) => {
+            get(ref(db, 'usersList/' + getSignedInUserUid() + '/userPhoto')).then((snp) => {
+                signedInUserPhotoUrl = snp.val().userPhotoURL.toString();
+                console.log(signedInUserPhotoUrl.toString())
                 if (snp.exists() && snp.val().userPhotoURL) {
-                    // console.log(usersUid, signedInUserUid, 'log1')
-                    if (usersUid === signedInUserUid) {
+                    if (usersUid === getSignedInUserUid()) {
                         userPhotoContainer.style.background = `url(${snp.val().userPhotoURL})`;
                         userPhotoContainer.style.backgroundSize = '128px';
                         addPhotoIcon.remove()
@@ -174,7 +174,7 @@ window.onload = () => {
         })
 
 
-        // if (snap.exists() && snap.val().userPhotoURL === signedInUserUid) {
+        // if (snap.exists() && snap.val().userPhotoURL === getSignedInUserUid()) {
         //     console.log('log3')
         //     userPhotoContainer.style.background = `url("images/userImages/userImageMan.jpg")`;
         //     userPhotoContainer.style.backgroundSize = '128px';
@@ -186,7 +186,7 @@ window.onload = () => {
 
         // snap.forEach(snapUid => {
         //
-        //     if (snap.exists() && snapUid.val().uid === signedInUserUid) {
+        //     if (snap.exists() && snapUid.val().uid === getSignedInUserUid()) {
         //         if (snap.userPhoto === undefined) {
         //             console.log('log1')
         //             userPhotoContainer.style.background = `url("images/userImages/userImageMan.jpg")`;
@@ -215,147 +215,190 @@ window.onload = () => {
         userFullNameSpan.style.fontSize = '18px'
         userFullNameSpan.className = 'userFullNameSpan'
         userFullNameDiv.appendChild(userFullNameSpan);
-        rrr()
+        removeLoading()
 
 
-        userFullNameSpan?.addEventListener('load', rrr)
-
+        userFullNameSpan?.addEventListener('load', removeLoading)
 
 
         addPhotoIcon.addEventListener("click", addPhoto);
         signOutButton.addEventListener('click', signOut);
 
-        // form.addEventListener('submit', (evt) => {
-        //     evt.preventDefault();
-        //     let message = messageInput.value;
-        //     const messageText = messageInput.value.trim();
-        //     if (messageText !== '') {
-        //         sendMessage(message);
-        //         messageInput.value = ''
-        //     }
-        //
+
+        async function getEl() {
+            await gt()
+        }
+
+        function gt() {
+            clearMessageArea()
+
+            return new Promise(() => {
+                let chatUser = document.querySelectorAll('.selectUser');
+                chatUser.forEach(el => {
+                    el.addEventListener('click', ev => {
+                        clearMessageArea();
+                        recipientId = ev.target.id;
+                        let mainCont = document.getElementById('mainContent');
+                        if (getSignedInUserUid() !== ev.target.id) {
+                            mainCont.style.display = 'block';
+                        }
+                        getMessages(recipientId).then();
+
+                        // set(ref(dbRt, 'chatsList/' + getSignedInUserUid() + recipientId + '/messages/' + Date.now()), {
+                        //     text: 'Welcome',
+                        //     timeStamp: Date.now()
+                        // })
+                    })
+                })
+            })
+        }
+
+        getEl()
+
+        //     form.addEventListener('submit', (evt) => {
+        //         evt.preventDefault();
+        //         let message = messageInput.value;
+        //         const message=Text = messageInput.value.trim();
+        //         if (messageText !== '') {
+        //             sendMessage(message);
+        //             messageInput.value = ''
+        //         }
+
+        //     })
         // })
 
-        selectUserParent.addEventListener("click", ev => {
-            if (ev && isClicked) {
-                if (ev.target !== selectUserParent) {
-                    recipientId = ev.target.id;
-                    if (recipientId) {
-                        createChat(recipientId, isClicked)
-                    }
 
-                }
-            }
-            if (ev.target.id !== recipientId) {
-                isClicked = true;
-                recipientId = ev.target.id;
-                createChat(recipientId, isClicked);
-                let children = messagesArea.children;
+        // selectUserParent.addEventListener("click", ev => {
+        //     if (ev && isClicked) {
+        //         if (ev.target !== selectUserParent) {
+        //             recipientId = ev.target.id;
+        //             if (recipientId) {
+        //                 console.log(recipientId)
+        //                 createChat(recipientId, isClicked)
+        //             }
 
-                for (let i = 0; i < children.length; i++) {
-                    children[i].textContent = null
-                    console.log(i)
-                }
+        //         }
+        //     }
+        //     if (ev.target.id !== recipientId) {
+        //         isClicked = true;
+        //         recipientId = ev.target.id;
+        //         // createChat(recipientId, isClicked);
+        //         let children = messagesArea.children;
 
-            }
+        //         for (let i = 0; i < children.length; i++) {
+        //             children[i].textContent = null
+        //             console.log(i)
+        //         }
+
+        //     }
 
 
-        })
-        // const noMessages = document.createElement('div');
-        // if (messagesArea.childNodes.length === 1) {
-        //     noMessages.id = 'noMessages'
-        //     noMessages.innerHTML = `
+        // })
+
+
+        //     const noMessages = document.createElement('div');
+        //     if (messagesArea.childNodes.length === 1) {
+        //         noMessages.id = 'noMessages'
+        //         noMessages.innerHTML = `
         //    <div style="width: 320px; height: 200px; display: flex; justify-content: center; align-items: center ">
         //         <span>There are no messages</span>
         //     </div>
         // `
-        //     messagesArea.appendChild(noMessages);
-        //     setTimeout(() => loadingDiv.remove(), 1500)
-        //
-        // } else {
-        //     noMessages.remove();
-        //     onChildAdded(ref(dbRt, 'chatsList/' + uid + arr[0].uid + '/messages/'), (snap) => {
+        //         messagesArea.appendChild(noMessages);
+        //         setTimeout(() => loadingDiv.remove(), 1500)
+
+        //     } else {
+        //         noMessages.remove();
+        //         onChildAdded(ref(dbRt, 'chatsList/' + getSignedInUserUid() + arr[0].uid + '/messages/'), (snap) => {
+        //             if (snap.exists) {
+        //                 displayMessage(snap.val().text);
+        //                 scrollBottom()
+        //             }
+        //             loadingDiv.remove();
+        //         })
+        //         setTimeout(() => loadingDiv.remove(), 1500)
+
+        //     }
+        //     onChildAdded(ref(dbRt, 'chatsList/' + getSignedInUserUid() + arr[0].uid + '/messages/'), (snap) => {
         //         if (snap.exists) {
+        //             console.log(snap.val())
         //             displayMessage(snap.val().text);
         //             scrollBottom()
         //         }
-        //         loadingDiv.remove();
+        //         noMessages.remove();
         //     })
-        //     setTimeout(() => loadingDiv.remove(), 1500)
-        //
-        // }
-        // onChildAdded(ref(dbRt, 'chatsList/' + uid + arr[0].uid + '/messages/'), (snap) => {
-        //     if (snap.exists) {
-        //         console.log(snap.val())
-        //         displayMessage(snap.val().text);
-        //         scrollBottom()
-        //     }
-        //     noMessages.remove();
-        // })
-
-
-    });
-
-
+    })
 }
+
+
 form.addEventListener('submit', (e) => {
     const messageInput = document.getElementById('messageInput');
     if (messageInput.value.replace(/\s+/g, '') !== '') {
     } else {
         messageInput.value = '';
     }
-    sendMessage(messageInput.value, messageId);
+    sendMessage(messageInput.value, messageId).then(() => {
+        getMessages(recipientId).then();
+        // clearMessageArea();
+
+    });
+    createMessage(getSignedInUserUid(), recipientId, messageInput.value).then()
     messageInput.value = '';
+
+
     e.preventDefault()
 });
 
-function reverseIds(arr) {
-    return arr.reverse()
-}
+let messageArray = [];
 
-
-function createChat(recipientId, isClckd) {
-
-    onValue(ref(dbRt, 'chatsList/'), (snap) => {
-        if (snap.exists) {
-            snap.forEach((val) => {
-                if (val.key.includes(signedInUserUid && recipientId)) {
-                    messageId = val.key;
-                    onChildAdded(ref(dbRt, 'chatsList/' + val.key + '/messages/'), (snap) => {
-                        if (snap.exists) {
-                            displayMessage(snap.val().text);
-                            scrollBottom();
-                        }
-                        // noMessages.remove();
-                    })
-                } else {
-                    // set(ref(dbRt, 'chatsList/' + signedInUserUid + recipientId + '/messages/' + Date.now()), {text: 'Welcome to chat', timeStamp: Date.now()}).then(() => {
-                    //     onChildAdded(ref(dbRt, 'chatsList/' + signedInUserUid + recipientId + '/messages/'), (snap) => {
-                    //         if (snap.exists) {
-                    //             displayMessage(snap.val().text);
-                    //             scrollBottom();
-                    //         }
-                    //         // noMessages.remove();
-                    //     })
-                    // })
-                }
-
-            })
-        }
+async function getChat(recipientId) {
+    await get(ref(db, 'chatsList/' + getSignedInUserUid() + recipientId + '/messages/')).then(snap => {
+        snap.forEach(val => {
+            messageArray.push(val.val().text);
+        })
     })
-
-
-    if (isClckd) {
-        isClicked = false
-    }
-
-
-    // const messagesArea = document.getElementById('messagesArea');
-    // const sendingMessage = document.createElement('div');
-    // sendingMessage.innerHTML = createSendingMessage(message);
-    // messagesArea.appendChild(sendingMessage);
-    // scrollBottom()
 }
+
+// function createChat(recipientId) {
+//     set(ref(dbRt, 'chatsList/' + getSignedInUserUid() + recipientId + '/messages/' + Date.now()), { text: 'Welcome to chat', timeStamp: Date.now() }).then(() => {
+//         // onChildAdded(ref(dbRt, 'chatsList/' + getSignedInUserUid() + recipientId + '/messages/'), (snap) => {
+//         //     if (snap.exists) {
+//         //         // displayMessage(snap.val().text);
+//         //         // scrollBottom();
+//         //     }
+//         //     // noMessages.remove();
+//         // })
+//     })
+
+//     onValue(ref(dbRt, 'chatsList/'), (snap) => {
+//         if (snap.exists) {
+//             snap.forEach((val) => {
+//                 console.log(val.text)
+//                 if (val.key.includes(getSignedInUserUid() && recipientId)) {
+//                     messageId = val.key;
+//                     onChildAdded(ref(dbRt, 'chatsList/' + val.key + '/messages/'), (snap) => {
+//                         if (snap.exists) {
+//                             displayMessage(snap.val().text);
+//                             scrollBottom();
+//                         }
+//                         // noMessages.remove();
+//                     })
+//                 }
+
+//             })
+//         }
+//     })
+
+
+//     isClicked = false
+
+
+//     // const messagesArea = document.getElementById('messagesArea');
+//     // const sendingMessage = document.createElement('div');
+//     // sendingMessage.innerHTML = createSendingMessage(message);
+//     // messagesArea.appendChild(sendingMessage);
+//     // scrollBottom()
+// }
 
 
 function openLoading() {
@@ -374,30 +417,29 @@ function addPhoto() {
 
 function createSendingMessage(data) {
     return `
-                    <div id="sentMessage" style="display: flex; align-items: flex-end; width: auto; min-height: 60px">
-                    <div style="min-width: 260px; height: 100%; background-color: #4165f3; border-radius: 20px">
-                        <span>
+                    <div id="sentMessage" class="sentMessage">
+                        <div style="min-width: 260px; width: 80%; height: 100%; background-color: #4165f3; border-radius: 20px">
+                            <span>
                                 <div style="padding: 3px; margin: 11px; max-width: 260px; color: white; word-wrap: break-word">${data}</div>
-                        </span>
-                    </div>
-                    <div style="display: flex; justify-content: center; align-items: center; width: 60px; height: 100%">
-                        <div style="width: 45px; height: 45px; background-image: url(images/userImages/userImageMan.jpg); background-size: 100%; border: 0 solid; border-radius: 50px">
+                            </span>
+                        </div>
+                        <div style="display: flex; justify-content: center; align-items: center; width: 60px; height: 100%">
+                            <div style="width: 45px; height: 45px; background-image: url(${signedInUserPhotoUrl}); background-size: 100%; border: 0 solid; border-radius: 50px">
+                            </div>
                         </div>
                     </div>
-                </div>
 `
 }
-
-function createReceivedMessage(messages) {
+function createReceivingMessage(data) {
     return `
                     <div id="receivedMessage" class="receivedMessage">
                         <div style="display: flex; justify-content: center; align-items: center; width: 60px; height: 100%">
-                            <div style="width: 45px; height: 45px; background-image: url(images/userImages/userImageWoman.jpg); background-size: 100%; border: 0 solid; border-radius: 50px">
+                            <div style="width: 45px; height: 45px; background-image: url(${recipientPhotoUrl}); background-size: 100%; border: 0 solid; border-radius: 50px">
                             </div>
                         </div>
                         <div style="min-width: 260px; height: 100%; background-color: #e5e6ea; border-radius: 20px">
                         <span>
-                            <div style="padding: 3px; margin: 11px; max-width: 260px; color: black">${messages}</div>
+                            <div style="padding: 3px; margin: 11px; max-width: 260px; color: black; word-wrap: break-word">${data}</div>
                         </span>
                         </div>
                     </div>
@@ -415,18 +457,17 @@ function setUserProfilePhoto(res) {
 }
 
 function upload(file) {
-    const storageRef = sRef(storage, 'userPhoto/' + signedInUserUid + '/' + file.name);
+    const storageRef = sRef(storage, 'userPhoto/' + getSignedInUserUid() + '/' + file.name);
     uploadBytes(storageRef, file).then(() => {
         getFileFromStorage(file)
     })
 }
 
 function getFileFromStorage(file) {
-    const storageRef = sRef(storage, 'userPhoto/' + signedInUserUid + '/' + file.name);
+    const storageRef = sRef(storage, 'userPhoto/' + getSignedInUserUid() + '/' + file.name);
 
     getDownloadURL(storageRef).then((res) => {
-        console.log(res)
-        set(ref(dbRt, 'usersList/' + signedInUserUid + '/userPhoto'), {userPhotoURL: res});
+        set(ref(db, 'usersList/' + getSignedInUserUid() + '/userPhoto'), {userPhotoURL: res});
         setUserProfilePhoto(res)
     })
 
@@ -440,39 +481,31 @@ function getFile() {
 }
 
 function displayMessage(message) {
-    const messagesArea = document.getElementById('messagesArea');
+    // const messagesArea = document.getElementById('messagesArea');
     const sendingMessage = document.createElement('div');
     sendingMessage.innerHTML = createSendingMessage(message);
     sendingMessage.id = 'sendingMessageId';
     messagesArea.appendChild(sendingMessage);
+    scrollBottom();
     // loadingDiv.remove()
 }
 
-function sendMessage(message, messageId) {
-
-    get(ref(dbRt, 'chatsList/' + messageId + '/messages/')).then((snap) => {
-        if (snap !== null) {
-            console.log(messageId, 'log1')
-            set(ref(dbRt, 'chatsList/' + messageId + '/messages/' + Date.now()), {
-                text: message,
-                timeStamp: Date.now()
-            }).then((snap) => {
-
-            })
-        } else {
-            console.log('log1')
-
-            set(ref(dbRt, 'chatsList/' + messageId + '/messages/' + Date.now()), {
-                text: message,
-                timeStamp: Date.now()
-            }).then((snap) => {
-
-            })
-        }
-    })
-
-
+function displayReceivedMessage(message) {
+    // const messagesArea = document.getElementById('messagesArea');
+    const receivedMessage = document.createElement('div');
+    receivedMessage.innerHTML = createReceivingMessage(message);
+    receivedMessage.id = 'receivedMessageId';
+    messagesArea.appendChild(receivedMessage);
+    scrollBottom();
+    // loadingDiv.remove()
 }
+
+function clearMessageArea() {
+    while (messagesArea.firstChild) {
+        messagesArea.removeChild(messagesArea.firstChild)
+    }
+}
+
 
 function scrollBottom() {
     messagesArea.scrollTop = messagesArea.scrollHeight;
@@ -491,11 +524,46 @@ function checkCred() {
     }
 }
 
-let nading = document.getElementById('nading');
+function removeLoading() {
+    loading.remove()
+}
 
-function rrr() {
-    nading.remove()
-    nading.style.display = 'none'
+function getSignedInUserUid() {
+    if (sessionStorage.getItem('user-creds')) {
+        return JSON.parse(sessionStorage.getItem('user-creds')).uid
+    }
 }
 
 
+async function getMessages() {
+    await onValue(ref(db, "messages/"), (sss) => {
+            console.log(sss, 'sss')
+            sss.forEach(item => {
+                if (getSignedInUserUid() === item.val().sender && recipientId === item.val().recipient) {
+                    displayMessage(item.val().text)
+                }
+                if (getSignedInUserUid() === item.val().recipient && recipientId === item.val().sender) {
+                    displayReceivedMessage(item.val().text)
+                }
+            })
+    })
+
+}
+
+async function sendMessage(message, messageId) {
+    await get(ref(db, 'chatsList/' + messageId + '/messages/')).then(() => {
+        set(ref(db, 'chatsList/' + getSignedInUserUid() + recipientId + '/messages/' + Date.now()), {
+            text: message,
+            timeStamp: Date.now()
+        })
+    })
+}
+
+async function createMessage(currentUserId, recipientId, message) {
+    await set(ref(db, 'messages/' + Date.now()), {
+        sender: currentUserId,
+        recipient: recipientId,
+        text: message,
+        timeStamp: Date.now()
+    })
+}

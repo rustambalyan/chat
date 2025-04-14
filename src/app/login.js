@@ -11,11 +11,12 @@ import {
 const firebaseConfig = {
     apiKey: "AIzaSyAcjkoMZcttxOBHOFqITeg0ajyFJhCx9OY",
     authDomain: "chatapp-5d0f0.firebaseapp.com",
+    databaseURL: "https://chatapp-5d0f0-default-rtdb.firebaseio.com",
     projectId: "chatapp-5d0f0",
     storageBucket: "chatapp-5d0f0.appspot.com",
     messagingSenderId: "361463095812",
     appId: "1:361463095812:web:d78f96e5fc72195f828b51"
-};
+  };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
