@@ -255,6 +255,8 @@ window.onload = () => {
 
         getEl()
 
+
+
         //     form.addEventListener('submit', (evt) => {
         //         evt.preventDefault();
         //         let message = messageInput.value;
@@ -337,12 +339,7 @@ form.addEventListener('submit', (e) => {
     } else {
         messageInput.value = '';
     }
-    sendMessage(messageInput.value, messageId).then(() => {
-        getMessages(recipientId).then();
-        // clearMessageArea();
-
-    });
-    createMessage(getSignedInUserUid(), recipientId, messageInput.value).then()
+    createMessage(getSignedInUserUid(), recipientId, messageInput.value).then();
     messageInput.value = '';
 
 
@@ -430,6 +427,7 @@ function createSendingMessage(data) {
                     </div>
 `
 }
+
 function createReceivingMessage(data) {
     return `
                     <div id="receivedMessage" class="receivedMessage">
@@ -537,24 +535,20 @@ function getSignedInUserUid() {
 
 async function getMessages() {
     await onValue(ref(db, "messages/"), (sss) => {
-            console.log(sss, 'sss')
-            sss.forEach(item => {
-                if (getSignedInUserUid() === item.val().sender && recipientId === item.val().recipient) {
-                    displayMessage(item.val().text)
-                }
-                if (getSignedInUserUid() === item.val().recipient && recipientId === item.val().sender) {
-                    displayReceivedMessage(item.val().text)
-                }
-            })
-    })
+        clearMessageArea()
+        sss.forEach(item => {
+            let messArr = [];
+            if (getSignedInUserUid() === item.val().sender && recipientId === item.val().recipient) {
+                messArr.push(item.val().text)
+                displayMessage(messArr.map(m => m));
+                console.log('1')
 
-}
-
-async function sendMessage(message, messageId) {
-    await get(ref(db, 'chatsList/' + messageId + '/messages/')).then(() => {
-        set(ref(db, 'chatsList/' + getSignedInUserUid() + recipientId + '/messages/' + Date.now()), {
-            text: message,
-            timeStamp: Date.now()
+            }
+            if (getSignedInUserUid() === item.val().recipient && recipientId === item.val().sender) {
+                messArr.push(item.val().text)
+                displayMessage(messArr.map(m => m));
+                console.log('2')
+            }
         })
     })
 }
