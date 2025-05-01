@@ -40,11 +40,12 @@ const storage = getStorage(app);
 let firstName = '';
 let lastName = '';
 // let usersUid = '';
-let signedInUserPhotoUrl = '';
-let recipientPhotoUrl = '';
+let currentUserPhotoURL = '';
+let recipientPhotoURL = '';
 let recipientId = '';
 let isClicked = false;
 let messageId = '';
+let userPhotoURL = 'images/userImages/userImageMan.jpg';
 
 
 const signOutButton = document.getElementById('signOutButton');
@@ -137,16 +138,14 @@ window.onload = () => {
     get(ref(db, 'usersList/')).then((snap) => {
         snap.forEach(el => {
             let s = el.val();
-            let userPhotoURL = 'images/userImages/userImageMan.jpg';
             if (s.userPhoto !== undefined) {
                 userPhotoURL = s.userPhoto.userPhotoURL;
-                recipientPhotoUrl = s.userPhoto.userPhotoURL;
             }
             const usersUid = s.uid;
             const userInfoMini = document.createElement('div');
             userInfoMini.innerHTML = `
                     <div class="selectUser" id="${usersUid}">
-                    <div style="width: 45px; height: 45px; background-image: url(${userPhotoURL}); background-size: 100%; border-radius: 50%" id="${usersUid}"></div>
+                    <div data-userphotourl = "${userPhotoURL}" style="width: 45px; height: 45px; background-image: url(${userPhotoURL}); background-size: 100%; border-radius: 50%" id="${usersUid}"></div>
                         <span style="display: inline-block; max-width: 60px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; font-size: 10px" id="${usersUid}">${s.firstName} ${s.lastName}</span>
 `;
             if (s.uid !== getSignedInUserUid()) {
@@ -155,18 +154,20 @@ window.onload = () => {
 
 
             get(ref(db, 'usersList/' + getSignedInUserUid() + '/userPhoto')).then((snp) => {
-                signedInUserPhotoUrl = snp.val().userPhotoURL.toString();
-                console.log(signedInUserPhotoUrl.toString())
-                if (snp.exists() && snp.val().userPhotoURL) {
-                    if (usersUid === getSignedInUserUid()) {
-                        userPhotoContainer.style.background = `url(${snp.val().userPhotoURL})`;
-                        userPhotoContainer.style.backgroundSize = '128px';
-                        addPhotoIcon.remove()
-                    }
+                if (snp.val() !== null) {
+                    currentUserPhotoURL = snp.val().userPhotoURL.toString();
+                    if (snp.exists() && snp.val().userPhotoURL) {
+                        if (usersUid === getSignedInUserUid()) {
+                            userPhotoContainer.style.background = `url(${snp.val().userPhotoURL})`;
+                            userPhotoContainer.style.backgroundSize = '128px';
+                            addPhotoIcon.remove()
+                        }
 
+                    }
                 } else {
                     userPhotoContainer.style.background = `url(images/userImages/userImageMan.jpg)`;
                     userPhotoContainer.style.backgroundSize = '128px';
+
                 }
             })
 
@@ -238,23 +239,18 @@ window.onload = () => {
                     el.addEventListener('click', ev => {
                         clearMessageArea();
                         recipientId = ev.target.id;
+                        recipientPhotoURL = ev.target.dataset.userphotourl;
                         let mainCont = document.getElementById('mainContent');
                         if (getSignedInUserUid() !== ev.target.id) {
                             mainCont.style.display = 'block';
                         }
-                        getMessages(recipientId).then();
-
-                        // set(ref(dbRt, 'chatsList/' + getSignedInUserUid() + recipientId + '/messages/' + Date.now()), {
-                        //     text: 'Welcome',
-                        //     timeStamp: Date.now()
-                        // })
+                        getMessages(recipientId).then()
                     })
                 })
             })
         }
 
         getEl()
-
 
 
         //     form.addEventListener('submit', (evt) => {
@@ -339,7 +335,7 @@ form.addEventListener('submit', (e) => {
     } else {
         messageInput.value = '';
     }
-    createMessage(getSignedInUserUid(), recipientId, messageInput.value).then();
+    createMessage(getSignedInUserUid(), currentUserPhotoURL, recipientPhotoURL, recipientId, messageInput.value).then();
     messageInput.value = '';
 
 
@@ -413,31 +409,40 @@ function addPhoto() {
 }
 
 function createSendingMessage(data) {
-    return `
-                    <div id="sentMessage" class="sentMessage">
-                        <div style="min-width: 260px; width: 80%; height: 100%; background-color: #4165f3; border-radius: 20px">
+    if (currentUserPhotoURL !== '') {
+        return `
+                    <div id="sentMessage" class="sentMessage" messageId="${messageId}">
+                        <div style="min-width: 260px; width: 80%; height: 100%; background-color: #4165f3; border-radius: 20px; display: flex; justify-content: space-between">
                             <span>
-                                <div style="padding: 3px; margin: 11px; max-width: 260px; color: white; word-wrap: break-word">${data}</div>
+                                <div style="padding: 3px; margin: 11px; max-width: 260px; color: white; word-wrap: break-word">${data}
+                                </div>
                             </span>
+                            <div class='sendingMessage' style="width: 50px; height: 50px; display: flex; justify-content: center; align-items: center">
+                            <img src="images/icons/remove.svg" alt="deleteMessage" id="deleteMessage" class="deleteMessage">
+                            </div>
                         </div>
                         <div style="display: flex; justify-content: center; align-items: center; width: 60px; height: 100%">
-                            <div style="width: 45px; height: 45px; background-image: url(${signedInUserPhotoUrl}); background-size: 100%; border: 0 solid; border-radius: 50px">
+                            <div style="width: 45px; height: 45px; background-image: url(${currentUserPhotoURL}); background-size: 100%; border: 0 solid; border-radius: 50px">
                             </div>
                         </div>
                     </div>
 `
+    } else {
+        console.log(currentUserPhotoURL, 'abrakadabra')
+        currentUserPhotoURL = 'gs://chatapp-5d0f0.appspot.com/userImageMan.jpg'
+    }
 }
 
-function createReceivingMessage(data) {
+function createReceivingMessage(message, recipientPhotoURL) {
     return `
-                    <div id="receivedMessage" class="receivedMessage">
+                    <div id="receivedMessage" class="receivedMessage" messageId="${messageId}">
                         <div style="display: flex; justify-content: center; align-items: center; width: 60px; height: 100%">
-                            <div style="width: 45px; height: 45px; background-image: url(${recipientPhotoUrl}); background-size: 100%; border: 0 solid; border-radius: 50px">
+                            <div style="width: 45px; height: 45px; background-image: url(${recipientPhotoURL}); background-size: 100%; border: 0 solid; border-radius: 50px">
                             </div>
                         </div>
                         <div style="min-width: 260px; height: 100%; background-color: #e5e6ea; border-radius: 20px">
                         <span>
-                            <div style="padding: 3px; margin: 11px; max-width: 260px; color: black; word-wrap: break-word">${data}</div>
+                            <div style="padding: 3px; margin: 11px; max-width: 260px; color: black; word-wrap: break-word">${message}</div>
                         </span>
                         </div>
                     </div>
@@ -491,7 +496,7 @@ function displayMessage(message) {
 function displayReceivedMessage(message) {
     // const messagesArea = document.getElementById('messagesArea');
     const receivedMessage = document.createElement('div');
-    receivedMessage.innerHTML = createReceivingMessage(message);
+    receivedMessage.innerHTML = createReceivingMessage(message, recipientPhotoURL);
     receivedMessage.id = 'receivedMessageId';
     messagesArea.appendChild(receivedMessage);
     scrollBottom();
@@ -535,29 +540,40 @@ function getSignedInUserUid() {
 
 async function getMessages() {
     await onValue(ref(db, "messages/"), (sss) => {
-        clearMessageArea()
+        clearMessageArea();
         sss.forEach(item => {
-            let messArr = [];
-            if (getSignedInUserUid() === item.val().sender && recipientId === item.val().recipient) {
-                messArr.push(item.val().text)
-                displayMessage(messArr.map(m => m));
-                console.log('1')
-
+            if (getSignedInUserUid() === item.val().senderId && recipientId === item.val().recipientId) {
+                messageId = item.val().messageId;
+                currentUserPhotoURL = item.val().senderPhotoURL;
+                displayMessage(item.val().messageText);
             }
-            if (getSignedInUserUid() === item.val().recipient && recipientId === item.val().sender) {
-                messArr.push(item.val().text)
-                displayMessage(messArr.map(m => m));
-                console.log('2')
+            if (getSignedInUserUid() === item.val().recipientId && recipientId === item.val().senderId) {
+                messageId = item.val().messageId;
+                currentUserPhotoURL = item.val().recipientPhotoURL;
+                displayReceivedMessage(item.val().messageText);
             }
         })
     })
 }
 
-async function createMessage(currentUserId, recipientId, message) {
+async function createMessage(currentUserId, signedInUserPhotoUrl, recipientPhotoURL, recipientId, message) {
+    if (signedInUserPhotoUrl === '') {
+
+        signedInUserPhotoUrl = currentUserPhotoURL
+    }
     await set(ref(db, 'messages/' + Date.now()), {
-        sender: currentUserId,
-        recipient: recipientId,
-        text: message,
+        senderId: currentUserId,
+        senderPhotoURL: signedInUserPhotoUrl,
+        recipientPhotoURL: recipientPhotoURL,
+        recipientId: recipientId,
+        messageId: Date.now(),
+        messageText: message,
         timeStamp: Date.now()
     })
 }
+
+// function deleteMessage() {
+//     document.getElementById('sentMessage').addEventListener('load', () => {
+//         console.log('isClicked')
+//     });
+// }

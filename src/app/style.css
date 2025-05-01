@@ -454,3 +454,15 @@ li:hover {
         background-position: 450px 0;
     }
 }
+
+.sendingMessage:hover img  {
+    transition-duration: 500ms;
+    transition-property: margin-right;
+    display: block;
+}
+
+.deleteMessage {
+    display: none;
+    width: 20px;
+    height: 20px;
+}
