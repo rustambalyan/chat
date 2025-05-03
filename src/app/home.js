@@ -8,9 +8,11 @@ import {
 import {
     set,
     get,
+    remove,
     ref,
     getDatabase,
-    onChildAdded, onValue
+    onChildAdded,
+    onValue
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 import {
     getStorage,
@@ -244,7 +246,7 @@ window.onload = () => {
                         if (getSignedInUserUid() !== ev.target.id) {
                             mainCont.style.display = 'block';
                         }
-                        getMessages(recipientId).then()
+                        getMessages(recipientId).then();
                     })
                 })
             })
@@ -418,7 +420,7 @@ function createSendingMessage(data) {
                                 </div>
                             </span>
                             <div class='sendingMessage' style="width: 50px; height: 50px; display: flex; justify-content: center; align-items: center">
-                            <img src="images/icons/remove.svg" alt="deleteMessage" id="deleteMessage" class="deleteMessage">
+                            <img src="images/icons/remove.svg" alt="deleteMessage" id="${messageId}" class="deleteMessage" messageId="${messageId}">
                             </div>
                         </div>
                         <div style="display: flex; justify-content: center; align-items: center; width: 60px; height: 100%">
@@ -440,10 +442,13 @@ function createReceivingMessage(message, recipientPhotoURL) {
                             <div style="width: 45px; height: 45px; background-image: url(${recipientPhotoURL}); background-size: 100%; border: 0 solid; border-radius: 50px">
                             </div>
                         </div>
-                        <div style="min-width: 260px; height: 100%; background-color: #e5e6ea; border-radius: 20px">
+                        <div style="min-width: 260px; height: 100%; background-color: #e5e6ea; border-radius: 20px; display: flex; justify-content: space-between">
                         <span>
                             <div style="padding: 3px; margin: 11px; max-width: 260px; color: black; word-wrap: break-word">${message}</div>
                         </span>
+                        <div class='sendingMessage' style="width: 50px; height: 50px; display: flex; justify-content: center; align-items: center">
+                            <img src="images/icons/remove.svg" alt="deleteMessage" id="${messageId}" class="deleteMessage" messageId="${messageId}">
+                            </div>
                         </div>
                     </div>
 `
@@ -483,14 +488,20 @@ function getFile() {
     });
 }
 
+
+
 function displayMessage(message) {
-    // const messagesArea = document.getElementById('messagesArea');
-    const sendingMessage = document.createElement('div');
-    sendingMessage.innerHTML = createSendingMessage(message);
-    sendingMessage.id = 'sendingMessageId';
-    messagesArea.appendChild(sendingMessage);
-    scrollBottom();
-    // loadingDiv.remove()
+    return new Promise(() => {
+        const sendingMessage = document.createElement('div');
+        sendingMessage.innerHTML = createSendingMessage(message);
+        sendingMessage.id = 'sendingMessageId';
+        messagesArea.appendChild(sendingMessage);
+        scrollBottom();
+        // loadingDiv.remove()
+    })
+
+        // const messagesArea = document.getElementById('messagesArea');
+
 }
 
 function displayReceivedMessage(message) {
@@ -546,11 +557,15 @@ async function getMessages() {
                 messageId = item.val().messageId;
                 currentUserPhotoURL = item.val().senderPhotoURL;
                 displayMessage(item.val().messageText);
+                deleteMessage();
+
             }
             if (getSignedInUserUid() === item.val().recipientId && recipientId === item.val().senderId) {
                 messageId = item.val().messageId;
+                console.log(messageId)
                 currentUserPhotoURL = item.val().recipientPhotoURL;
                 displayReceivedMessage(item.val().messageText);
+                deleteMessage()
             }
         })
     })
@@ -561,19 +576,34 @@ async function createMessage(currentUserId, signedInUserPhotoUrl, recipientPhoto
 
         signedInUserPhotoUrl = currentUserPhotoURL
     }
-    await set(ref(db, 'messages/' + Date.now()), {
+    const uniqueId = getUniqueId()
+    await set(ref(db, 'messages/' + uniqueId), {
         senderId: currentUserId,
         senderPhotoURL: signedInUserPhotoUrl,
         recipientPhotoURL: recipientPhotoURL,
         recipientId: recipientId,
-        messageId: Date.now(),
+        messageId: uniqueId,
         messageText: message,
         timeStamp: Date.now()
     })
 }
 
-// function deleteMessage() {
-//     document.getElementById('sentMessage').addEventListener('load', () => {
-//         console.log('isClicked')
-//     });
-// }
+function deleteMessage() {
+    let el = document.querySelectorAll('.deleteMessage');
+    el.forEach(i => {
+        i.addEventListener('click', item => {
+            remove(ref(db, 'messages/' + item.target.id))
+        })
+    })
+}
+function getUniqueId() {
+    return `${Date.now().toString(36)}` + `${Math.random().toString(36).slice(2)}`;
+}
+
+
+
+
+
+
+
+
