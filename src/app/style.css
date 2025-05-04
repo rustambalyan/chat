@@ -180,6 +180,7 @@ a {
     max-height: 200px;
     overflow-x: hidden;
     overflow-y: visible;
+    margin-bottom: 10px;
 }
 
 .head {
@@ -229,23 +230,18 @@ a {
     display: none;
     justify-content: center;
     align-items: flex-end;
-    padding: 16px 0;
+    padding: 0 0 16px 0;
     min-height: 273px;
     margin: 20px;
 }
 
 .sentMessage {
-    display: flex;
-    align-items: flex-end;
     width: 100%;
     min-height: 60px;
-    justify-content: space-between;
-    margin-top: 10px
+    margin-top: 25px
 }
 
 .receivedMessage {
-    display: flex;
-    align-items: flex-end;
     width: auto;
     min-height: 60px
 }
@@ -278,6 +274,7 @@ li {
     padding: 7px 0
 
 }
+
 li:hover {
     text-align: left;
     list-style: none;
@@ -286,7 +283,8 @@ li:hover {
 
     animation-duration: 100ms;
 }
-.li-a-span{
+
+.li-a-span {
     margin-left: 32px;
     font-size: 1.1rem;
 }
@@ -322,11 +320,13 @@ li:hover {
 }
 
 .userPhotoContainer:hover {
-    .userPhoto {
-        display: block;
-        cursor: pointer;
-        width: 50%;
-    }
+
+.userPhoto {
+    display: block;
+    cursor: pointer;
+    width: 50%;
+}
+
 }
 
 .userFullNameDiv {
@@ -386,12 +386,13 @@ li:hover {
     border: 1px solid lightgray;
     border-radius: 5px;
 
-    .messageIcon {
-        display: block;
-    }
+.messageIcon {
+    display: block;
 }
 
-.selectUser:focus{
+}
+
+.selectUser:focus {
     background-color: rgb(194, 196, 194);
 }
 
@@ -407,18 +408,20 @@ li:hover {
     font-weight: bold;
 }
 
-.logo{
+.logo {
     background: url("images/icons/logo.png") no-repeat;
     background-size: 60px;
     width: 60px;
     height: 60px;
     margin-left: 12px;
 }
+
 .loading {
     width: 120px;
     background: #eae6e6;
 }
-.description .string{
+
+.description .string {
     background: #d9d9d9;
     border-radius: 10px;
     height: 17px;
@@ -426,7 +429,8 @@ li:hover {
     overflow: hidden;
     position: relative;
 }
-.description .string1{
+
+.description .string1 {
     background: #d9d9d9;
     border-radius: 10px;
     height: 17px;
@@ -436,33 +440,41 @@ li:hover {
 }
 
 .description .string::before,
-.skeleton .kutal::before{
+.skeleton .kutal::before {
     position: absolute;
     content: "";
     height: 100%;
     width: 100%;
-    background-image: linear-gradient(to right, #cecbcb 0%, rgba(0,0,0,0.05) 20%, #d2cfcf 40%, #d9d9d9 100%);
+    background-image: linear-gradient(to right, #cecbcb 0%, rgba(0, 0, 0, 0.05) 20%, #d2cfcf 40%, #d9d9d9 100%);
     background-repeat: no-repeat;
     background-size: 448px 398px;
     animation: shimmer 1s linear infinite;
 }
+
 @keyframes shimmer {
-    0%{
+    0% {
         background-position: -450px 0;
     }
-    100%{
+    100% {
         background-position: 450px 0;
     }
 }
 
-.sendingMessage:hover img  {
+.sendingMessage:hover img {
     transition-duration: 500ms;
     transition-property: margin-right;
     display: block;
+    cursor: pointer;
 }
 
 .deleteMessage {
     display: none;
     width: 20px;
     height: 20px;
+}
+
+.dateAndTime {
+    font-family: "Arial Unicode MS", sans-serif;
+    font-size: .7rem;
+    margin: 10px 0
 }

@@ -63,6 +63,9 @@ const sendButton = document.getElementById('sendButton');
 const form = document.getElementById('form');
 let loading = document.getElementById('loading');
 
+let timeStamp;
+
+
 getSignedInUserUid()
 
 
@@ -243,10 +246,29 @@ window.onload = () => {
                         recipientId = ev.target.id;
                         recipientPhotoURL = ev.target.dataset.userphotourl;
                         let mainCont = document.getElementById('mainContent');
+                        let chatWith = document.getElementById('chatWith');
                         if (getSignedInUserUid() !== ev.target.id) {
                             mainCont.style.display = 'block';
+                            get(ref(db, 'usersList/' + recipientId)).then(snap => {
+                                let chatNameHTML =
+                                    `
+                                        <span>Chat with ${snap.val().firstName}</span>
+                                    `;
+                                let child = document.createElement('span');
+                                child.id = 'chatNameHTMLChild'
+                                child.innerHTML = chatNameHTML;
+                                let getChild = document.getElementById('chatWith');
+                                getChild.style.display = 'flex';
+                                getChild.style.justifyContent = 'center'
+                                if (getChild.firstChild) {
+                                    chatWith.removeChild(getChild.firstChild);
+                                }
+                                chatWith.appendChild(child);
+                            })
+
                         }
                         getMessages(recipientId).then();
+                        getDateAndTime()
                     })
                 })
             })
@@ -334,14 +356,13 @@ window.onload = () => {
 form.addEventListener('submit', (e) => {
     const messageInput = document.getElementById('messageInput');
     if (messageInput.value.replace(/\s+/g, '') !== '') {
+        createMessage(getSignedInUserUid(), currentUserPhotoURL, recipientPhotoURL, recipientId, messageInput.value).then();
+        messageInput.value = '';
+        e.preventDefault()
     } else {
         messageInput.value = '';
     }
-    createMessage(getSignedInUserUid(), currentUserPhotoURL, recipientPhotoURL, recipientId, messageInput.value).then();
-    messageInput.value = '';
 
-
-    e.preventDefault()
 });
 
 let messageArray = [];
@@ -413,27 +434,66 @@ function addPhoto() {
 function createSendingMessage(data) {
     if (currentUserPhotoURL !== '') {
         return `
-                    <div id="sentMessage" class="sentMessage" messageId="${messageId}">
+ <div style="display: flex; id="sentMessage" class="sentMessage" messageId="${messageId}"">
+                    <div style="display: flex; flex-direction: column">
+    <div style="min-width: 260px; width: 80%; height: 100%; background-color: #4165f3; border-radius: 20px; display: flex; align-items: center">
+        <span>
+            <div style="padding: 3px; margin: 11px; max-width: 260px; color: white; word-wrap: break-word">${data}
+            </div>
+        </span>
+    </div>
+                        <span style="color: #313030; font-size: .7rem; display: flex; justify-content: flex-end">${getDateAndTime(timeStamp)}</span>
+
+                    </div>
+                    
+                    <div class='sendingMessage' style="width: 20px; height: 20px; display: flex; align-items: flex-end">
+                        <img src="images/icons/remove.svg" alt="deleteMessage" id="${messageId}" class="deleteMessage"
+                     messageId="${messageId}">
+                    </div>
+                    
+                    <div style="background-color: #d841f3; width: 60px; height: 60px">
+                        <img src="./images/userImages/userImageMan.jpg" style="width: 60px; height: 60px" alt="">
+                    </div>
+
+                </div>
+
+
+
+
+<div id="sentMessage" class="sentMessage" messageId="${messageId}">
+    <div id="dddUp" style="display: flex; flex-direction: column;">
+        <div id="ddddd">
                         <div style="min-width: 260px; width: 80%; height: 100%; background-color: #4165f3; border-radius: 20px; display: flex; justify-content: space-between">
                             <span>
                                 <div style="padding: 3px; margin: 11px; max-width: 260px; color: white; word-wrap: break-word">${data}
                                 </div>
                             </span>
-                            <div class='sendingMessage' style="width: 50px; height: 50px; display: flex; justify-content: center; align-items: center">
-                            <img src="images/icons/remove.svg" alt="deleteMessage" id="${messageId}" class="deleteMessage" messageId="${messageId}">
-                            </div>
                         </div>
-                        <div style="display: flex; justify-content: center; align-items: center; width: 60px; height: 100%">
-                            <div style="width: 45px; height: 45px; background-image: url(${currentUserPhotoURL}); background-size: 100%; border: 0 solid; border-radius: 50px">
-                            </div>
-                        </div>
-                    </div>
+
+        <div>
+            <span id="dateAndTime" class="dateAndTime">${getDateAndTime(timeStamp)}</span>
+        </div>
+    </div>
+    </div>
+    <div id="hy" style="display: flex; align-items: flex-end">
+            <div class='sendingMessage'
+                 style="width: 20px; height: 20px">
+            <img src="images/icons/remove.svg" alt="deleteMessage" id="${messageId}" class="deleteMessage"
+                     messageId="${messageId}">
+        </div>
+    <div style="width: 60px; height: 100%">
+        <div style="width: 45px; height: 45px; background-image: url(${currentUserPhotoURL}); background-size: 100%; border: 0 solid; border-radius: 50px">
+        </div>
+    </div>
+    </div>
+</div>
 `
     } else {
         console.log(currentUserPhotoURL, 'abrakadabra')
         currentUserPhotoURL = 'gs://chatapp-5d0f0.appspot.com/userImageMan.jpg'
     }
 }
+
 
 function createReceivingMessage(message, recipientPhotoURL) {
     return `
@@ -450,8 +510,7 @@ function createReceivingMessage(message, recipientPhotoURL) {
                             <img src="images/icons/remove.svg" alt="deleteMessage" id="${messageId}" class="deleteMessage" messageId="${messageId}">
                             </div>
                         </div>
-                    </div>
-`
+                    </div>`
 }
 
 function setUserProfilePhoto(res) {
@@ -489,18 +548,20 @@ function getFile() {
 }
 
 
-
 function displayMessage(message) {
     return new Promise(() => {
+        // let dateAndTime = document.createElement('div');
+        // sendingMessage.innerHTML = `<span id="dateAndTime" class="dateAndTime">${getDateAndTime(timeStamp)}</span>`;
         const sendingMessage = document.createElement('div');
         sendingMessage.innerHTML = createSendingMessage(message);
         sendingMessage.id = 'sendingMessageId';
         messagesArea.appendChild(sendingMessage);
+
         scrollBottom();
         // loadingDiv.remove()
     })
 
-        // const messagesArea = document.getElementById('messagesArea');
+    // const messagesArea = document.getElementById('messagesArea');
 
 }
 
@@ -510,6 +571,9 @@ function displayReceivedMessage(message) {
     receivedMessage.innerHTML = createReceivingMessage(message, recipientPhotoURL);
     receivedMessage.id = 'receivedMessageId';
     messagesArea.appendChild(receivedMessage);
+    let dateAndTime = document.createElement('div');
+    dateAndTime.innerHTML = `<span id="dateAndTime" class="dateAndTime">${getDateAndTime(timeStamp)}</span>`;
+    receivedMessage.appendChild(dateAndTime);
     scrollBottom();
     // loadingDiv.remove()
 }
@@ -555,6 +619,7 @@ async function getMessages() {
         sss.forEach(item => {
             if (getSignedInUserUid() === item.val().senderId && recipientId === item.val().recipientId) {
                 messageId = item.val().messageId;
+                timeStamp = item.val().timeStamp;
                 currentUserPhotoURL = item.val().senderPhotoURL;
                 displayMessage(item.val().messageText);
                 deleteMessage();
@@ -562,7 +627,7 @@ async function getMessages() {
             }
             if (getSignedInUserUid() === item.val().recipientId && recipientId === item.val().senderId) {
                 messageId = item.val().messageId;
-                console.log(messageId)
+                timeStamp = item.val().timeStamp;
                 currentUserPhotoURL = item.val().recipientPhotoURL;
                 displayReceivedMessage(item.val().messageText);
                 deleteMessage()
@@ -596,11 +661,14 @@ function deleteMessage() {
         })
     })
 }
+
 function getUniqueId() {
     return `${Date.now().toString(36)}` + `${Math.random().toString(36).slice(2)}`;
 }
 
-
+function getDateAndTime(timeStamp) {
+    return new Date(timeStamp).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+}
 
 
 
