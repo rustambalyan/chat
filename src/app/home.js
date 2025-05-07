@@ -434,7 +434,7 @@ function addPhoto() {
 function createSendingMessage(data) {
     if (currentUserPhotoURL !== '') {
         return `
- <div style="display: flex; id="sentMessage" class="sentMessage" messageId="${messageId}"">
+ <div style="display: flex; justify-content: space-between;" id="sentMessage" class="sentMessage">
                     <div style="display: flex; flex-direction: column">
     <div style="min-width: 260px; width: 80%; height: 100%; background-color: #4165f3; border-radius: 20px; display: flex; align-items: center">
         <span>
@@ -444,49 +444,16 @@ function createSendingMessage(data) {
     </div>
                         <span style="color: #313030; font-size: .7rem; display: flex; justify-content: flex-end">${getDateAndTime(timeStamp)}</span>
 
-                    </div>
-                    
-                    <div class='sendingMessage' style="width: 20px; height: 20px; display: flex; align-items: flex-end">
-                        <img src="images/icons/remove.svg" alt="deleteMessage" id="${messageId}" class="deleteMessage"
-                     messageId="${messageId}">
-                    </div>
-                    
-                    <div style="background-color: #d841f3; width: 60px; height: 60px">
-                        <img src="./images/userImages/userImageMan.jpg" style="width: 60px; height: 60px" alt="">
-                    </div>
-
-                </div>
-
-
-
-
-<div id="sentMessage" class="sentMessage" messageId="${messageId}">
-    <div id="dddUp" style="display: flex; flex-direction: column;">
-        <div id="ddddd">
-                        <div style="min-width: 260px; width: 80%; height: 100%; background-color: #4165f3; border-radius: 20px; display: flex; justify-content: space-between">
-                            <span>
-                                <div style="padding: 3px; margin: 11px; max-width: 260px; color: white; word-wrap: break-word">${data}
-                                </div>
-                            </span>
+                    </div>                    
+                        <div style="width: 60px; height: 100%; display: flex; justify-content: center">
+                            <img src="${currentUserPhotoURL}" alt="senderPhotoURL" style="width: 55px; border-radius: 50px">
+                        </div>
+                        <div class='sendingMessage' style="width: 20px; height: 20px">
+                            <div id="${messageId}" class="deleteMessage">
+                            </div>
                         </div>
 
-        <div>
-            <span id="dateAndTime" class="dateAndTime">${getDateAndTime(timeStamp)}</span>
-        </div>
-    </div>
-    </div>
-    <div id="hy" style="display: flex; align-items: flex-end">
-            <div class='sendingMessage'
-                 style="width: 20px; height: 20px">
-            <img src="images/icons/remove.svg" alt="deleteMessage" id="${messageId}" class="deleteMessage"
-                     messageId="${messageId}">
-        </div>
-    <div style="width: 60px; height: 100%">
-        <div style="width: 45px; height: 45px; background-image: url(${currentUserPhotoURL}); background-size: 100%; border: 0 solid; border-radius: 50px">
-        </div>
-    </div>
-    </div>
-</div>
+                </div>
 `
     } else {
         console.log(currentUserPhotoURL, 'abrakadabra')
@@ -497,20 +464,27 @@ function createSendingMessage(data) {
 
 function createReceivingMessage(message, recipientPhotoURL) {
     return `
-                    <div id="receivedMessage" class="receivedMessage" messageId="${messageId}">
-                        <div style="display: flex; justify-content: center; align-items: center; width: 60px; height: 100%">
-                            <div style="width: 45px; height: 45px; background-image: url(${recipientPhotoURL}); background-size: 100%; border: 0 solid; border-radius: 50px">
-                            </div>
+                    <div id="receivedMessage" class="receivedMessage">
+                        <div style="width: 60px; height: 100%; display: flex; justify-content: center">
+                            <img src="${recipientPhotoURL}" alt="receiverPhoto" style="width: 55px; border-radius: 50px">
                         </div>
-                        <div style="min-width: 260px; height: 100%; background-color: #e5e6ea; border-radius: 20px; display: flex; justify-content: space-between">
-                        <span>
-                            <div style="padding: 3px; margin: 11px; max-width: 260px; color: black; word-wrap: break-word">${message}</div>
-                        </span>
-                        <div class='sendingMessage' style="width: 50px; height: 50px; display: flex; justify-content: center; align-items: center">
-                            <img src="images/icons/remove.svg" alt="deleteMessage" id="${messageId}" class="deleteMessage" messageId="${messageId}">
-                            </div>
+                        
+                        
+                    <div style="display: flex; flex-direction: column">
+    <div style="min-width: 260px; width: 80%; height: 100%; background-color: #e5e6ea; border-radius: 20px; display: flex; align-items: center">
+        <span>
+            <div style="padding: 3px; margin: 11px; max-width: 260px; color: black; word-wrap: break-word">${message}
+            </div>
+        </span>
+    </div>
+                        <span style="color: #313030; font-size: .7rem; display: flex; justify-content: flex-end">${getDateAndTime(timeStamp)}</span>
                         </div>
-                    </div>`
+                        <div class='receivingMessage' style="width: 20px; height: 20px">
+                            <div id="${messageId}" class="deleteMessage">
+                            </div>                        
+                            </div>
+                    </div>
+`
 }
 
 function setUserProfilePhoto(res) {
@@ -571,9 +545,6 @@ function displayReceivedMessage(message) {
     receivedMessage.innerHTML = createReceivingMessage(message, recipientPhotoURL);
     receivedMessage.id = 'receivedMessageId';
     messagesArea.appendChild(receivedMessage);
-    let dateAndTime = document.createElement('div');
-    dateAndTime.innerHTML = `<span id="dateAndTime" class="dateAndTime">${getDateAndTime(timeStamp)}</span>`;
-    receivedMessage.appendChild(dateAndTime);
     scrollBottom();
     // loadingDiv.remove()
 }
@@ -667,7 +638,7 @@ function getUniqueId() {
 }
 
 function getDateAndTime(timeStamp) {
-    return new Date(timeStamp).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+    return new Date(timeStamp).toLocaleTimeString([], {day: "2-digit", month: "2-digit",  year: "2-digit", hour: '2-digit', minute: '2-digit'});
 }
 
 
