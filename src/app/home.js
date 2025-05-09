@@ -1,17 +1,10 @@
-import {initializeApp, onLog} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import {getAuth} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import {
-    doc,
-    getFirestore
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import {
     set,
     get,
     remove,
     ref,
     getDatabase,
-    onChildAdded,
     onValue
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 import {
@@ -21,8 +14,6 @@ import {
     getDownloadURL
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
-
-// Your web app's Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyAcjkoMZcttxOBHOFqITeg0ajyFJhCx9OY",
     authDomain: "chatapp-5d0f0.firebaseapp.com",
@@ -33,110 +24,26 @@ const firebaseConfig = {
     appId: "1:361463095812:web:d78f96e5fc72195f828b51"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getDatabase();
-const dbRef = ref(db);
-const auth = getAuth();
 const storage = getStorage(app);
-let firstName = '';
-let lastName = '';
-// let usersUid = '';
 let currentUserPhotoURL = '';
 let recipientPhotoURL = '';
 let recipientId = '';
-let isClicked = false;
 let messageId = '';
 let userPhotoURL = 'images/userImages/userImageMan.jpg';
-
-
 const signOutButton = document.getElementById('signOutButton');
-const loadingDiv = document.getElementById('loadingDivParent');
-const createChatButtonDiv = document.getElementById('createChatButtonDiv');
 const addPhotoIcon = document.getElementById('addPhotoIcon');
 const addPhotoInput = document.getElementById('addPhotoInput');
 const selectUserParent = document.getElementById('selectUserParent');
 const userPhotoContainer = document.getElementById('userPhotoContainer');
 const userFullNameDiv = document.getElementById('userFullNameDiv');
 const messagesArea = document.getElementById('messagesArea');
-const sendButton = document.getElementById('sendButton');
 const form = document.getElementById('form');
-let loading = document.getElementById('loading');
-
+const loading = document.getElementById('loading');
 let timeStamp;
 
-
-getSignedInUserUid()
-
-
-/////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////
-
-// let selectedUser = document.querySelectorAll('.selectUser');
-// selectedUser.forEach((user) => {
-//     const userName = user.innerText;
-//     user.addEventListener('click', openChat);
-// })
-
-
-///////////////////////////////////////////////////////////////////////
-
-// const fileInput = document.getElementById('fileInput');
-// fileInput.addEventListener('change', getFile);
-//
-// function getFile() {
-//     const f = fileInput.files[0];
-//     upload(f)
-//
-// }
-//
-// function upload(file) {
-//     // let s = getFileNameWithoutExtension(file);
-//
-//     // getStorage(app, ref(dbRt, 'userPhotos/' + s));
-//     const storageRef = sRef(storage, 'userPhotos/' + file.name)
-//
-//
-//     // const r = ref(storage, 'userPhotos'  + s);
-//     setTimeout(() => {
-//         uploadBytes(storageRef, file)
-//     }, 3000)
-// }
-//
-//
-//
-//
-//
-//
-// function createChat() {
-//     get(ref(dbRt, 'chatsList/' + uId + 'ididididididididididid' + '/messages')).then(chat => {
-//         console.log(chat.exists())
-//         if(chat.exists()){
-//             set(ref(dbRt, 'chatsList/' + uId + 'ididididididididididid' + '/messages/' + Date.now()), {message: messageInput.value, timeStamp: Date.now()}).then(r => {
-//                 console.log(r, 'this is r')
-//             });
-//         }
-//     });
-// }
-
-
-// function getFileNameWithoutExtension(file) {
-//     const fileName = file.name;
-//     const lastDotIndex = fileName.lastIndexOf('.');
-//     if (lastDotIndex === -1) {
-//         return fileName; // Файл без расширения
-//     } else {
-//         return fileName.substring(0, lastDotIndex); // Имя файла без расширения
-//     }
-// }
-
-
-// let userFullNameSpanMini = document.getElementById('userFullNameSpanMini');
-// userFullNameSpanMini.style.textOverflow = 'ellipsis';
-// userFullNameSpanMini.style.whiteSpace = 'nowrap';
-// userFullNameSpanMini.className = 'userFullNameSpanMini'
+getSignedInUserUid();
 
 window.onload = () => {
     checkCred();
@@ -165,6 +72,9 @@ window.onload = () => {
                         if (usersUid === getSignedInUserUid()) {
                             userPhotoContainer.style.background = `url(${snp.val().userPhotoURL})`;
                             userPhotoContainer.style.backgroundSize = '128px';
+                            userPhotoContainer.addEventListener("click", () => {
+                                openModal(userPhotoCodeForModal())
+                            })
                             addPhotoIcon.remove()
                         }
 
@@ -179,38 +89,6 @@ window.onload = () => {
 
         })
 
-
-        // if (snap.exists() && snap.val().userPhotoURL === getSignedInUserUid()) {
-        //     console.log('log3')
-        //     userPhotoContainer.style.background = `url("images/userImages/userImageMan.jpg")`;
-        //     userPhotoContainer.style.backgroundSize = '128px';
-        // }
-        // userPhotoContainer.style.background = `url(${snap.val().userPhoto.userPhotoURL})`;
-        // userPhotoContainer.style.backgroundSize = '128px';
-        // addPhotoIcon.remove()
-
-
-        // snap.forEach(snapUid => {
-        //
-        //     if (snap.exists() && snapUid.val().uid === getSignedInUserUid()) {
-        //         if (snap.userPhoto === undefined) {
-        //             console.log('log1')
-        //             userPhotoContainer.style.background = `url("images/userImages/userImageMan.jpg")`;
-        //             userPhotoContainer.style.backgroundSize = '128px';
-        //         } else {
-        //             console.log('log2')
-        //             console.log(snap.val().userPhoto.userPhotoURL)
-        //             userPhotoContainer.style.background = `url(${snap.val().userPhoto.userPhotoURL})`;
-        //             userPhotoContainer.style.backgroundSize = '128px';
-        //             addPhotoIcon.remove()
-        //         }
-        //     } else {
-        //         console.log('log3')
-        //         userPhotoContainer.style.background = `url("images/userImages/userImageMan.jpg")`;
-        //         userPhotoContainer.style.backgroundSize = '128px';
-        //     }
-        // })
-
         const userFullNameSpan = document.createElement('span');
         const firstName = JSON.parse(sessionStorage.getItem('user-info')).firstName;
         const lastName = JSON.parse(sessionStorage.getItem('user-info')).lastName;
@@ -222,14 +100,12 @@ window.onload = () => {
         userFullNameSpan.className = 'userFullNameSpan'
         userFullNameDiv.appendChild(userFullNameSpan);
         removeLoading()
-
-
         userFullNameSpan?.addEventListener('load', removeLoading)
-
-
         addPhotoIcon.addEventListener("click", addPhoto);
-        signOutButton.addEventListener('click', signOut);
-
+        signOutButton.addEventListener('click', () => {
+            openModal(signOutConfirmCodeForModal());
+            signOut();
+        });
 
         async function getEl() {
             await gt()
@@ -237,7 +113,6 @@ window.onload = () => {
 
         function gt() {
             clearMessageArea()
-
             return new Promise(() => {
                 let chatUser = document.querySelectorAll('.selectUser');
                 chatUser.forEach(el => {
@@ -265,7 +140,6 @@ window.onload = () => {
                                 }
                                 chatWith.appendChild(child);
                             })
-
                         }
                         getMessages(recipientId).then();
                         getDateAndTime()
@@ -273,85 +147,9 @@ window.onload = () => {
                 })
             })
         }
-
-        getEl()
-
-
-        //     form.addEventListener('submit', (evt) => {
-        //         evt.preventDefault();
-        //         let message = messageInput.value;
-        //         const message=Text = messageInput.value.trim();
-        //         if (messageText !== '') {
-        //             sendMessage(message);
-        //             messageInput.value = ''
-        //         }
-
-        //     })
-        // })
-
-
-        // selectUserParent.addEventListener("click", ev => {
-        //     if (ev && isClicked) {
-        //         if (ev.target !== selectUserParent) {
-        //             recipientId = ev.target.id;
-        //             if (recipientId) {
-        //                 console.log(recipientId)
-        //                 createChat(recipientId, isClicked)
-        //             }
-
-        //         }
-        //     }
-        //     if (ev.target.id !== recipientId) {
-        //         isClicked = true;
-        //         recipientId = ev.target.id;
-        //         // createChat(recipientId, isClicked);
-        //         let children = messagesArea.children;
-
-        //         for (let i = 0; i < children.length; i++) {
-        //             children[i].textContent = null
-        //             console.log(i)
-        //         }
-
-        //     }
-
-
-        // })
-
-
-        //     const noMessages = document.createElement('div');
-        //     if (messagesArea.childNodes.length === 1) {
-        //         noMessages.id = 'noMessages'
-        //         noMessages.innerHTML = `
-        //    <div style="width: 320px; height: 200px; display: flex; justify-content: center; align-items: center ">
-        //         <span>There are no messages</span>
-        //     </div>
-        // `
-        //         messagesArea.appendChild(noMessages);
-        //         setTimeout(() => loadingDiv.remove(), 1500)
-
-        //     } else {
-        //         noMessages.remove();
-        //         onChildAdded(ref(dbRt, 'chatsList/' + getSignedInUserUid() + arr[0].uid + '/messages/'), (snap) => {
-        //             if (snap.exists) {
-        //                 displayMessage(snap.val().text);
-        //                 scrollBottom()
-        //             }
-        //             loadingDiv.remove();
-        //         })
-        //         setTimeout(() => loadingDiv.remove(), 1500)
-
-        //     }
-        //     onChildAdded(ref(dbRt, 'chatsList/' + getSignedInUserUid() + arr[0].uid + '/messages/'), (snap) => {
-        //         if (snap.exists) {
-        //             console.log(snap.val())
-        //             displayMessage(snap.val().text);
-        //             scrollBottom()
-        //         }
-        //         noMessages.remove();
-        //     })
+        getEl().then()
     })
 }
-
 
 form.addEventListener('submit', (e) => {
     const messageInput = document.getElementById('messageInput');
@@ -362,69 +160,7 @@ form.addEventListener('submit', (e) => {
     } else {
         messageInput.value = '';
     }
-
 });
-
-let messageArray = [];
-
-async function getChat(recipientId) {
-    await get(ref(db, 'chatsList/' + getSignedInUserUid() + recipientId + '/messages/')).then(snap => {
-        snap.forEach(val => {
-            messageArray.push(val.val().text);
-        })
-    })
-}
-
-// function createChat(recipientId) {
-//     set(ref(dbRt, 'chatsList/' + getSignedInUserUid() + recipientId + '/messages/' + Date.now()), { text: 'Welcome to chat', timeStamp: Date.now() }).then(() => {
-//         // onChildAdded(ref(dbRt, 'chatsList/' + getSignedInUserUid() + recipientId + '/messages/'), (snap) => {
-//         //     if (snap.exists) {
-//         //         // displayMessage(snap.val().text);
-//         //         // scrollBottom();
-//         //     }
-//         //     // noMessages.remove();
-//         // })
-//     })
-
-//     onValue(ref(dbRt, 'chatsList/'), (snap) => {
-//         if (snap.exists) {
-//             snap.forEach((val) => {
-//                 console.log(val.text)
-//                 if (val.key.includes(getSignedInUserUid() && recipientId)) {
-//                     messageId = val.key;
-//                     onChildAdded(ref(dbRt, 'chatsList/' + val.key + '/messages/'), (snap) => {
-//                         if (snap.exists) {
-//                             displayMessage(snap.val().text);
-//                             scrollBottom();
-//                         }
-//                         // noMessages.remove();
-//                     })
-//                 }
-
-//             })
-//         }
-//     })
-
-
-//     isClicked = false
-
-
-//     // const messagesArea = document.getElementById('messagesArea');
-//     // const sendingMessage = document.createElement('div');
-//     // sendingMessage.innerHTML = createSendingMessage(message);
-//     // messagesArea.appendChild(sendingMessage);
-//     // scrollBottom()
-// }
-
-
-function openLoading() {
-    let el = `
-            <img src="images/animations/loading-animation-200px.svg" alt="loading">
-    `
-    let loading = document.createElement('div');
-    loading.innerHTML = el;
-    loadingDiv.appendChild(loading)
-}
 
 function addPhoto() {
     addPhotoInput.click();
@@ -434,57 +170,52 @@ function addPhoto() {
 function createSendingMessage(data) {
     if (currentUserPhotoURL !== '') {
         return `
- <div style="display: flex; justify-content: space-between;" id="sentMessage" class="sentMessage">
-                    <div style="display: flex; flex-direction: column">
-    <div style="min-width: 260px; width: 80%; height: 100%; background-color: #4165f3; border-radius: 20px; display: flex; align-items: center">
-        <span>
-            <div style="padding: 3px; margin: 11px; max-width: 260px; color: white; word-wrap: break-word">${data}
-            </div>
-        </span>
-    </div>
-                        <span style="color: #313030; font-size: .7rem; display: flex; justify-content: flex-end">${getDateAndTime(timeStamp)}</span>
-
-                    </div>                    
-                        <div style="width: 60px; height: 100%; display: flex; justify-content: center">
-                            <img src="${currentUserPhotoURL}" alt="senderPhotoURL" style="width: 55px; border-radius: 50px">
-                        </div>
-                        <div class='sendingMessage' style="width: 20px; height: 20px">
-                            <div id="${messageId}" class="deleteMessage">
+            <div style="display: flex; justify-content: space-between;" id="sentMessage" class="sentMessage">
+                <div style="display: flex; flex-direction: column">
+                    <div style="min-width: 260px; width: 80%; height: 100%; background-color: #4165f3; border-radius: 20px; display: flex; align-items: center">
+                        <span>
+                            <div style="padding: 3px; margin: 11px; max-width: 260px; color: white; word-wrap: break-word">${data}
                             </div>
-                        </div>
-
+                        </span>
+                    </div>
+                    <span style="color: #313030; font-size: .7rem; display: flex; justify-content: flex-end">${getDateAndTime(timeStamp)}
+                    </span>
+                </div>                    
+                <div style="width: 60px; height: 100%; display: flex; justify-content: center">
+                    <img src="${currentUserPhotoURL}" alt="senderPhotoURL" style="width: 55px; border-radius: 50px">
                 </div>
-`
+                <div class='sendingMessage' style="width: 20px; height: 20px">
+                    <div id="${messageId}" class="deleteMessage">
+                    </div>
+                </div>
+            </div>
+        `
     } else {
-        console.log(currentUserPhotoURL, 'abrakadabra')
         currentUserPhotoURL = 'gs://chatapp-5d0f0.appspot.com/userImageMan.jpg'
     }
 }
 
-
 function createReceivingMessage(message, recipientPhotoURL) {
     return `
-                    <div id="receivedMessage" class="receivedMessage">
-                        <div style="width: 60px; height: 100%; display: flex; justify-content: center">
-                            <img src="${recipientPhotoURL}" alt="receiverPhoto" style="width: 55px; border-radius: 50px">
-                        </div>
-                        
-                        
-                    <div style="display: flex; flex-direction: column">
-    <div style="min-width: 260px; width: 80%; height: 100%; background-color: #e5e6ea; border-radius: 20px; display: flex; align-items: center">
-        <span>
-            <div style="padding: 3px; margin: 11px; max-width: 260px; color: black; word-wrap: break-word">${message}
+        <div id="receivedMessage" class="receivedMessage">
+            <div style="width: 60px; height: 100%; display: flex; justify-content: center">
+                <img src="${recipientPhotoURL}" alt="receiverPhoto" style="width: 55px; border-radius: 50px">
             </div>
-        </span>
-    </div>
-                        <span style="color: #313030; font-size: .7rem; display: flex; justify-content: flex-end">${getDateAndTime(timeStamp)}</span>
+            <div style="display: flex; flex-direction: column">
+                <div style="min-width: 260px; width: 80%; height: 100%; background-color: #e5e6ea; border-radius: 20px; display: flex; align-items: center">
+                    <span>
+                        <div style="padding: 3px; margin: 11px; max-width: 260px; color: black; word-wrap: break-word">${message}
                         </div>
-                        <div class='receivingMessage' style="width: 20px; height: 20px">
-                            <div id="${messageId}" class="deleteMessage">
-                            </div>                        
-                            </div>
-                    </div>
-`
+                    </span>
+                </div>
+                <span style="color: #313030; font-size: .7rem; display: flex; justify-content: flex-end">${getDateAndTime(timeStamp)}</span>
+            </div>
+            <div class='receivingMessage' style="width: 20px; height: 20px">
+                <div id="${messageId}" class="deleteMessage">
+                </div>                        
+            </div>
+        </div>
+    `
 }
 
 function setUserProfilePhoto(res) {
@@ -521,32 +252,22 @@ function getFile() {
     });
 }
 
-
-function displayMessage(message) {
+function displaySentMessage(message) {
     return new Promise(() => {
-        // let dateAndTime = document.createElement('div');
-        // sendingMessage.innerHTML = `<span id="dateAndTime" class="dateAndTime">${getDateAndTime(timeStamp)}</span>`;
         const sendingMessage = document.createElement('div');
         sendingMessage.innerHTML = createSendingMessage(message);
         sendingMessage.id = 'sendingMessageId';
         messagesArea.appendChild(sendingMessage);
-
-        scrollBottom();
-        // loadingDiv.remove()
+        scrollBottom()
     })
-
-    // const messagesArea = document.getElementById('messagesArea');
-
 }
 
 function displayReceivedMessage(message) {
-    // const messagesArea = document.getElementById('messagesArea');
     const receivedMessage = document.createElement('div');
     receivedMessage.innerHTML = createReceivingMessage(message, recipientPhotoURL);
     receivedMessage.id = 'receivedMessageId';
     messagesArea.appendChild(receivedMessage);
-    scrollBottom();
-    // loadingDiv.remove()
+    scrollBottom()
 }
 
 function clearMessageArea() {
@@ -555,16 +276,15 @@ function clearMessageArea() {
     }
 }
 
-
 function scrollBottom() {
-    messagesArea.scrollTop = messagesArea.scrollHeight;
+    messagesArea.scrollTop = messagesArea.scrollHeight
 }
 
-function signOut(evt) {
+function sOut(evt) {
     sessionStorage.removeItem('user-creds');
     sessionStorage.removeItem('user-info');
-    window.location.replace('index.html')
-    evt.preventDefault();
+    window.location.replace('index.html');
+    evt.preventDefault()
 }
 
 function checkCred() {
@@ -583,7 +303,6 @@ function getSignedInUserUid() {
     }
 }
 
-
 async function getMessages() {
     await onValue(ref(db, "messages/"), (sss) => {
         clearMessageArea();
@@ -592,9 +311,8 @@ async function getMessages() {
                 messageId = item.val().messageId;
                 timeStamp = item.val().timeStamp;
                 currentUserPhotoURL = item.val().senderPhotoURL;
-                displayMessage(item.val().messageText);
-                deleteMessage();
-
+                displaySentMessage(item.val().messageText);
+                deleteMessage()
             }
             if (getSignedInUserUid() === item.val().recipientId && recipientId === item.val().senderId) {
                 messageId = item.val().messageId;
@@ -609,7 +327,6 @@ async function getMessages() {
 
 async function createMessage(currentUserId, signedInUserPhotoUrl, recipientPhotoURL, recipientId, message) {
     if (signedInUserPhotoUrl === '') {
-
         signedInUserPhotoUrl = currentUserPhotoURL
     }
     const uniqueId = getUniqueId()
@@ -641,8 +358,50 @@ function getDateAndTime(timeStamp) {
     return new Date(timeStamp).toLocaleTimeString([], {day: "2-digit", month: "2-digit",  year: "2-digit", hour: '2-digit', minute: '2-digit'});
 }
 
+function openModal(data){
+    let body = document.getElementsByTagName("body")[0];
+    let modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.id = 'modal';
+    modal.innerHTML = data;
+    body.appendChild(modal);
+    const closeModalIcon = document.getElementById("closeModalIcon");
+    if(closeModalIcon){
+        closeModalIcon.addEventListener("click", () => {
+            closeModal()
+        })
+    }
+}
 
+function closeModal() {
+    document.getElementById('modal').remove()
+}
 
+function userPhotoCodeForModal(){
+    return `
+        <div class="boxInnerModal">
+            <img src=${currentUserPhotoURL} alt="userPhoto" width="65%">
+        </div>
+        <div class = "closeModalIcon" id="closeModalIcon">
+        </div>
+    `
+}
+function signOutConfirmCodeForModal() {
+    return `
+        <div style="border-radius: 10px; background-color: #e5e7ec; width: 320px; height: 150px; display: flex; align-items: center; justify-content: center">
+            <div style="width: 80%; display: flex; justify-content: space-evenly; align-items: center; cursor: default">
+                <div id="signOutConfirmButton" onclick="signOut()" style="border-radius: 5px; width: 120px; height: 40px; background-color: #2660ad; color: #d7dadf; display: flex; justify-content: center; align-items: center">Sign Out
+                </div>
+                <div style="border-radius: 5px; width: 100px; height: 40px; background-color: dimgray; color: #d7dadf; display: flex; justify-content: center; align-items: center; cursor: default">Cancel
+                </div>
+            </div>
+        </div>
+    `
+}
 
-
-
+function signOut() {
+    const signOutButton = document.getElementById("signOutConfirmButton");
+    signOutButton.addEventListener("click", event => {
+        sOut(event)
+    })
+}
