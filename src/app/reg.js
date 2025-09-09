@@ -187,7 +187,8 @@ let signUp = evt => {
                 set(ref(db, 'usersList/' + credentials.user.uid), {
                     firstName: firstName.value,
                     lastName: lastName.value,
-                    uid: credentials.user.uid
+                    uid: credentials.user.uid,
+                    userPhotoURL: 'https://firebasestorage.googleapis.com/v0/b/chatapp-5d0f0.appspot.com/o/userImageMan.jpg?alt=media&token=082bb935-b74e-4edc-8f90-77ad47ad2a0d'
                 }).then(() => {
                     window.location.href = 'index.html';
                     window.location.href = 'index.html';

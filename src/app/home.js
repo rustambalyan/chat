@@ -1,3 +1,4 @@
+import {app, db} from "./modules/modules.js";
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import {
     set,
@@ -14,6 +15,20 @@ import {
     getDownloadURL
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
+import {
+    getSignedInUserUid,
+    checkCred,
+    getUniqueId,
+    userPhotoCodeForModal,
+    getDateAndTime,
+    signOutConfirmCodeForModal,
+    signOut,
+    removeLoading,
+    openModal,
+    cancel,
+    storage
+} from "./modules/modules.js";
+
 const firebaseConfig = {
     apiKey: "AIzaSyAcjkoMZcttxOBHOFqITeg0ajyFJhCx9OY",
     authDomain: "chatapp-5d0f0.firebaseapp.com",
@@ -24,9 +39,7 @@ const firebaseConfig = {
     appId: "1:361463095812:web:d78f96e5fc72195f828b51"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase();
-const storage = getStorage(app);
+
 let currentUserPhotoURL = '';
 let recipientPhotoURL = '';
 let recipientId = '';
@@ -43,10 +56,9 @@ const form = document.getElementById('form');
 const loading = document.getElementById('loading');
 let timeStamp;
 
-getSignedInUserUid();
-
 window.onload = () => {
     checkCred();
+    getMessageFromInput();
     get(ref(db, 'usersList/')).then((snap) => {
         snap.forEach(el => {
             let s = el.val();
@@ -60,6 +72,7 @@ window.onload = () => {
                     <div data-userphotourl = "${userPhotoURL}" style="width: 45px; height: 45px; background-image: url(${userPhotoURL}); background-size: 100%; border-radius: 50%" id="${usersUid}"></div>
                         <span style="display: inline-block; max-width: 60px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; font-size: 10px" id="${usersUid}">${s.firstName} ${s.lastName}</span>
 `;
+            userPhotoURL = 'https://firebasestorage.googleapis.com/v0/b/chatapp-5d0f0.appspot.com/o/userImageMan.jpg?alt=media&token=082bb935-b74e-4edc-8f90-77ad47ad2a0d';
             if (s.uid !== getSignedInUserUid()) {
                 selectUserParent.appendChild(userInfoMini);
             }
@@ -73,7 +86,7 @@ window.onload = () => {
                             userPhotoContainer.style.background = `url(${snp.val().userPhotoURL})`;
                             userPhotoContainer.style.backgroundSize = '128px';
                             userPhotoContainer.addEventListener("click", () => {
-                                openModal(userPhotoCodeForModal())
+                                openModal(userPhotoCodeForModal(currentUserPhotoURL))
                             })
                             addPhotoIcon.remove()
                         }
@@ -99,12 +112,13 @@ window.onload = () => {
         userFullNameSpan.style.fontSize = '18px'
         userFullNameSpan.className = 'userFullNameSpan'
         userFullNameDiv.appendChild(userFullNameSpan);
-        removeLoading()
+        removeLoading(loading)
         userFullNameSpan?.addEventListener('load', removeLoading)
         addPhotoIcon.addEventListener("click", addPhoto);
         signOutButton.addEventListener('click', () => {
             openModal(signOutConfirmCodeForModal());
             signOut();
+            cancel()
         });
 
         async function getEl() {
@@ -151,25 +165,31 @@ window.onload = () => {
     })
 }
 
-form.addEventListener('submit', (e) => {
-    const messageInput = document.getElementById('messageInput');
-    if (messageInput.value.replace(/\s+/g, '') !== '') {
-        createMessage(getSignedInUserUid(), currentUserPhotoURL, recipientPhotoURL, recipientId, messageInput.value).then();
-        messageInput.value = '';
-        e.preventDefault()
-    } else {
-        messageInput.value = '';
-    }
-});
+function getMessageFromInput(){
+    form.addEventListener('submit', (e) => {
+        const messageInput = document.getElementById('messageInput');
+        if (messageInput.value.replace(/\s+/g, '') !== '') {
+            createMessage(getSignedInUserUid(), currentUserPhotoURL, recipientPhotoURL, recipientId, messageInput.value).then();
+            messageInput.value = '';
+            e.preventDefault()
+        } else {
+            messageInput.value = '';
+        }
+    });
+}
 
-function addPhoto() {
+
+
+export function addPhoto() {
     addPhotoInput.click();
     getFile()
 }
 
 function createSendingMessage(data) {
-    if (currentUserPhotoURL !== '') {
-        return `
+    if (currentUserPhotoURL === '') {
+        currentUserPhotoURL = 'https://firebasestorage.googleapis.com/v0/b/chatapp-5d0f0.appspot.com/o/userImageMan.jpg?alt=media&token=082bb935-b74e-4edc-8f90-77ad47ad2a0d'
+    }
+    return `
             <div style="display: flex; justify-content: space-between;" id="sentMessage" class="sentMessage">
                 <div style="display: flex; flex-direction: column">
                     <div style="min-width: 260px; width: 80%; height: 100%; background-color: #4165f3; border-radius: 20px; display: flex; align-items: center">
@@ -190,9 +210,6 @@ function createSendingMessage(data) {
                 </div>
             </div>
         `
-    } else {
-        currentUserPhotoURL = 'gs://chatapp-5d0f0.appspot.com/userImageMan.jpg'
-    }
 }
 
 function createReceivingMessage(message, recipientPhotoURL) {
@@ -280,28 +297,7 @@ function scrollBottom() {
     messagesArea.scrollTop = messagesArea.scrollHeight
 }
 
-function sOut(evt) {
-    sessionStorage.removeItem('user-creds');
-    sessionStorage.removeItem('user-info');
-    window.location.replace('index.html');
-    evt.preventDefault()
-}
 
-function checkCred() {
-    if (!sessionStorage.getItem('user-creds')) {
-        window.location.href = 'index.html'
-    }
-}
-
-function removeLoading() {
-    loading.remove()
-}
-
-function getSignedInUserUid() {
-    if (sessionStorage.getItem('user-creds')) {
-        return JSON.parse(sessionStorage.getItem('user-creds')).uid
-    }
-}
 
 async function getMessages() {
     await onValue(ref(db, "messages/"), (sss) => {
@@ -326,13 +322,19 @@ async function getMessages() {
 }
 
 async function createMessage(currentUserId, signedInUserPhotoUrl, recipientPhotoURL, recipientId, message) {
+    console.log(currentUserId, "currentUserId")
+    console.log(signedInUserPhotoUrl, "signedInUserPhotoUrl")
+    console.log(recipientPhotoURL, "recipientPhotoURL")
+    console.log(recipientId, "recipientId")
+    console.log(message, "message")
+
     if (signedInUserPhotoUrl === '') {
         signedInUserPhotoUrl = currentUserPhotoURL
     }
     const uniqueId = getUniqueId()
     await set(ref(db, 'messages/' + uniqueId), {
         senderId: currentUserId,
-        senderPhotoURL: signedInUserPhotoUrl,
+        senderPhotoURL: currentUserPhotoURL,
         recipientPhotoURL: recipientPhotoURL,
         recipientId: recipientId,
         messageId: uniqueId,
@@ -350,58 +352,7 @@ function deleteMessage() {
     })
 }
 
-function getUniqueId() {
-    return `${Date.now().toString(36)}` + `${Math.random().toString(36).slice(2)}`;
-}
 
-function getDateAndTime(timeStamp) {
-    return new Date(timeStamp).toLocaleTimeString([], {day: "2-digit", month: "2-digit",  year: "2-digit", hour: '2-digit', minute: '2-digit'});
-}
 
-function openModal(data){
-    let body = document.getElementsByTagName("body")[0];
-    let modal = document.createElement('div');
-    modal.className = 'modal';
-    modal.id = 'modal';
-    modal.innerHTML = data;
-    body.appendChild(modal);
-    const closeModalIcon = document.getElementById("closeModalIcon");
-    if(closeModalIcon){
-        closeModalIcon.addEventListener("click", () => {
-            closeModal()
-        })
-    }
-}
 
-function closeModal() {
-    document.getElementById('modal').remove()
-}
 
-function userPhotoCodeForModal(){
-    return `
-        <div class="boxInnerModal">
-            <img src=${currentUserPhotoURL} alt="userPhoto" width="65%">
-        </div>
-        <div class = "closeModalIcon" id="closeModalIcon">
-        </div>
-    `
-}
-function signOutConfirmCodeForModal() {
-    return `
-        <div style="border-radius: 10px; background-color: #e5e7ec; width: 320px; height: 150px; display: flex; align-items: center; justify-content: center">
-            <div style="width: 80%; display: flex; justify-content: space-evenly; align-items: center; cursor: default">
-                <div id="signOutConfirmButton" onclick="signOut()" style="border-radius: 5px; width: 120px; height: 40px; background-color: #2660ad; color: #d7dadf; display: flex; justify-content: center; align-items: center">Sign Out
-                </div>
-                <div style="border-radius: 5px; width: 100px; height: 40px; background-color: dimgray; color: #d7dadf; display: flex; justify-content: center; align-items: center; cursor: default">Cancel
-                </div>
-            </div>
-        </div>
-    `
-}
-
-function signOut() {
-    const signOutButton = document.getElementById("signOutConfirmButton");
-    signOutButton.addEventListener("click", event => {
-        sOut(event)
-    })
-}
