@@ -1,5 +1,12 @@
 import {
+    getStorage,
+    uploadBytes,
+    ref as sRef,
+    getDownloadURL
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+import {
     app,
+    upload,
     getFirebase,
     getSignedInUserUid,
     checkCred,
@@ -11,17 +18,17 @@ import {
     removeLoading,
     openModal,
     cancel,
-    ref1, db
+    getRef,
+    db, storage, onV
+    // getUserPhotos
 } from "./modules/modules.js";
-import {addPhoto} from "./home.js";
-
 let currentUserPhotoURL = '';
 let recipientPhotoURL = '';
 let recipientId = '';
 let messageId = '';
 let userPhotoURL = 'images/userImages/userImageMan.jpg';
 const signOutButton = document.getElementById('signOutButton');
-const addPhotoIcon = document.getElementById('addPhotoIcon');
+const addPhotoDiv = document.getElementById('addPhotoDiv');
 const addPhotoInput = document.getElementById('addPhotoInput');
 const selectUserParent = document.getElementById('selectUserParent');
 const userPhotoContainer = document.getElementById('userPhotoContainer');
@@ -30,27 +37,28 @@ const messagesArea = document.getElementById('messagesArea');
 const form = document.getElementById('form');
 const loading = document.getElementById('loading');
 let timeStamp;
+let param = '';
+let photosDiv = document.getElementById('photosDiv');
 
 window.onload = () => {
     checkCred();
-    getFirebase(ref1(db, 'usersList/')).then((snap) => {
+    getFirebase(getRef(db, 'usersList/')).then((snap) => {
         snap.forEach(el => {
             let s = el.val();
             if (s.userPhoto !== undefined) {
                 userPhotoURL = s.userPhoto.userPhotoURL;
             }
             const usersUid = s.uid;
-            get(ref(db, 'usersList/' + getSignedInUserUid() + '/userPhoto')).then((snp) => {
-                if (snp.val() !== null) {
-                    currentUserPhotoURL = snp.val().userPhotoURL.toString();
-                    if (snp.exists() && snp.val().userPhotoURL) {
+            getFirebase(getRef(db, 'usersList/' + getSignedInUserUid() + '/userPhoto')).then((snap) => {
+                if (snap.val() !== null) {
+                    // currentUserPhotoURL = snap.val().userPhotoURL.toString();
+                    if (snap.exists() && snap.val().userPhotoURL) {
                         if (usersUid === getSignedInUserUid()) {
-                            userPhotoContainer.style.background = `url(${snp.val().userPhotoURL})`;
+                            userPhotoContainer.style.background = `url(${snap.val().userPhotoURL})`;
                             userPhotoContainer.style.backgroundSize = '128px';
                             userPhotoContainer.addEventListener("click", () => {
                                 openModal(userPhotoCodeForModal(currentUserPhotoURL))
                             })
-                            addPhotoIcon.remove()
                         }
 
                     }
@@ -73,10 +81,7 @@ window.onload = () => {
         userFullNameSpan.className = 'userFullNameSpan'
         userFullNameDiv.appendChild(userFullNameSpan);
         removeLoading(loading)
-        userFullNameSpan?.addEventListener('load', removeLoading)
-        addPhotoIcon.addEventListener("click", () => {
-            addPhoto(addPhotoInput, getFile)
-        });
+        userFullNameSpan?.addEventListener('load', removeLoading);
         signOutButton.addEventListener('click', () => {
             openModal(signOutConfirmCodeForModal());
             signOut();
@@ -125,10 +130,63 @@ window.onload = () => {
     })
 }
 
-let addPhotoDiv = document.getElementById('addPhoto');
+// getUserPhotos();
+addPhotoDiv.addEventListener("click", res => {
+    addPhotoInput.click();
+    addPhotoInput.onchange = ev => {
+        let file = ev.target.files[0]
 
-addPhotoDiv.addEventListener("click", () => {
-    console.log('log')
-    addPhoto()
+        console.log(ev.target.files[0].name)
+        upload(file)
+    };
+
+
+
 })
 
+// let addPhotoCode = `
+//     <div id="photo" class="photo">
+//         <img src=${param} alt="addPhoto" style="width: 50%">
+//     </div>
+// `
+let userPhotosCode = `
+    <div id="photo" class="photo">
+        <img src="${param}" alt="addPhoto" style="width: 50%">
+    </div>
+`
+
+// function drawAddPhotoDiv() {
+//     let photosDiv = document.getElementById('photosDiv');
+//     let photo = document.createElement('div');
+//     photo.innerHTML = addPhotoCode;
+//
+//     photosDiv.appendChild(photo);
+// }
+
+function drawPhotosDiv(param){
+    console.log('hi')
+    let photo = document.createElement('div');
+    photo.innerHTML = `
+    <div id="photo" class="photo">
+        <img src="${param}" alt="addPhoto" style="width: 100%; border-radius: 15px">
+    </div>
+`;
+    photosDiv.appendChild(photo);
+}
+
+// getFirebase(getRef(db, 'usersList/' + getSignedInUserUid() + '/userPhoto')).then(res => {
+//     console.log('hello')
+//     res.forEach((r) => {
+//         param = r.val();
+//         drawPhotosDiv()
+//     });
+// })
+
+onV(getRef(db, 'usersList/' + getSignedInUserUid() + '/userPhoto'), (res => {
+    photosDiv.innerHTML = ''
+    res.forEach((r) => {
+        console.log(r.val());
+        param = r.val();
+        drawPhotosDiv(param);
+    });
+})).then()

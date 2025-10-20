@@ -4,6 +4,7 @@ import {
     set,
     get,
     remove,
+    update,
     ref,
     getDatabase,
     onValue
@@ -46,8 +47,6 @@ let recipientId = '';
 let messageId = '';
 let userPhotoURL = 'images/userImages/userImageMan.jpg';
 const signOutButton = document.getElementById('signOutButton');
-const addPhotoIcon = document.getElementById('addPhotoIcon');
-const addPhotoInput = document.getElementById('addPhotoInput');
 const selectUserParent = document.getElementById('selectUserParent');
 const userPhotoContainer = document.getElementById('userPhotoContainer');
 const userFullNameDiv = document.getElementById('userFullNameDiv');
@@ -78,7 +77,7 @@ window.onload = () => {
             }
 
 
-            get(ref(db, 'usersList/' + getSignedInUserUid() + '/userPhoto')).then((snp) => {
+            get(ref(db, 'usersList/' + getSignedInUserUid() + '/userPhotoURL')).then((snp) => {
                 if (snp.val() !== null) {
                     currentUserPhotoURL = snp.val().userPhotoURL.toString();
                     if (snp.exists() && snp.val().userPhotoURL) {
@@ -88,7 +87,6 @@ window.onload = () => {
                             userPhotoContainer.addEventListener("click", () => {
                                 openModal(userPhotoCodeForModal(currentUserPhotoURL))
                             })
-                            addPhotoIcon.remove()
                         }
 
                     }
@@ -112,9 +110,8 @@ window.onload = () => {
         userFullNameSpan.style.fontSize = '18px'
         userFullNameSpan.className = 'userFullNameSpan'
         userFullNameDiv.appendChild(userFullNameSpan);
-        removeLoading(loading)
-        userFullNameSpan?.addEventListener('load', removeLoading)
-        addPhotoIcon.addEventListener("click", addPhoto);
+        removeLoading(loading);
+        userFullNameSpan?.addEventListener('load', removeLoading);
         signOutButton.addEventListener('click', () => {
             openModal(signOutConfirmCodeForModal());
             signOut();
@@ -178,13 +175,6 @@ function getMessageFromInput(){
     });
 }
 
-
-
-export function addPhoto() {
-    addPhotoInput.click();
-    getFile()
-}
-
 function createSendingMessage(data) {
     if (currentUserPhotoURL === '') {
         currentUserPhotoURL = 'https://firebasestorage.googleapis.com/v0/b/chatapp-5d0f0.appspot.com/o/userImageMan.jpg?alt=media&token=082bb935-b74e-4edc-8f90-77ad47ad2a0d'
@@ -239,34 +229,9 @@ function setUserProfilePhoto(res) {
     if (res) {
         userPhotoContainer.style.background = `url(${res})`;
         userPhotoContainer.style.backgroundSize = '128px';
-        addPhotoIcon.remove()
     } else {
         userPhotoContainer.style.background = `url("images/userImages/userImageMan.jpg")`
     }
-}
-
-function upload(file) {
-    const storageRef = sRef(storage, 'userPhoto/' + getSignedInUserUid() + '/' + file.name);
-    uploadBytes(storageRef, file).then(() => {
-        getFileFromStorage(file)
-    })
-}
-
-function getFileFromStorage(file) {
-    const storageRef = sRef(storage, 'userPhoto/' + getSignedInUserUid() + '/' + file.name);
-
-    getDownloadURL(storageRef).then((res) => {
-        set(ref(db, 'usersList/' + getSignedInUserUid() + '/userPhoto'), {userPhotoURL: res});
-        setUserProfilePhoto(res)
-    })
-
-}
-
-function getFile() {
-    addPhotoInput.addEventListener("change", (res) => {
-        const file = res.target.files[0];
-        upload(file)
-    });
 }
 
 function displaySentMessage(message) {

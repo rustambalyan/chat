@@ -293,7 +293,10 @@ li:hover {
 
 .addPhotoInput {
     display: none;
-    background-image: url("images/icons/add-photo.svg");
+}
+
+.addPhotoInputFromPhotos{
+    display: none;
 }
 
 .userPhotoContainer {
@@ -307,23 +310,36 @@ li:hover {
     display: flex;
     justify-content: center;
     align-items: flex-end;
-    cursor: pointer;
 }
 
-.userPhoto {
-    display: block;
-    cursor: pointer;
+.addPhotoIcon {
+    display: none;
     width: 50%;
 }
 
 .userPhotoContainer:hover {
 
-.userPhoto {
-    display: block;
-    cursor: pointer;
-    width: 50%;
+    .addPhotoIcon {
+        display: block;
+        cursor: pointer;
+        width: 50%;
+    }
+
 }
 
+.addPhotoDiv {
+    margin: 5px 20px;
+    width: auto;
+    height: 50px;
+    background-color: #e8e5e5;
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+}
+
+
+.addPhotoDiv:hover {
+    cursor: pointer;
 }
 
 .userFullNameDiv {
@@ -515,4 +531,11 @@ li:hover {
 .closeModalIcon:hover {
     opacity: 50%;
     background-size: 100%;
+}
+.photo {
+    margin: 5px;
+    width: 110px;
+    height: 110px;
+    background-color: #e8e5e5;
+    border-radius: 15px;
 }

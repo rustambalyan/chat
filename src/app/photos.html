@@ -12,7 +12,7 @@
 <div class="page">
     <div class="header">
         <div class="logoParent">
-            <a href="#">
+            <a href="./home.html">
                 <div class="logo"></div>
             </a>
         </div>
@@ -24,8 +24,6 @@
         <div class="userInfo">
             <div>
                 <div class="userPhotoContainer" id="userPhotoContainer">
-                    <input type="file" id="addPhotoInput" class="addPhotoInput">
-                    <img src="images/icons/add-photo.svg" alt="addPhoto" id="addPhotoIcon" class="userPhoto">
                 </div>
                 <div class="userFullNameDiv" id="userFullNameDiv">
                     <div class="loading" id="loading">
@@ -37,10 +35,22 @@
                 <hr>
                 <div class="menu">
                     <ul>
-                        <li><a href="home.html"><div style='margin-left: 3px; display: flex; align-items: center; width: 20px; height: 20px; background: url("images/icons/home.svg"); background-size: 20px'><span class="li-a-span">Home</span></div></a></li>
-                        <li><a href="photos.html"><div style='margin-left: 3px; display: flex; align-items: center; width: 20px; height: 20px; background: url("images/icons/mode-landscape.svg"); background-size: 20px'><span class="li-a-span">Photos</span></div></a></li>
-                        <li><a href="#"><div style='margin-left: 3px; display: flex; align-items: center; width: 20px; height: 20px; background: url("images/icons/settings-sliders.svg"); background-size: 20px'><span class="li-a-span">Settings</span></div></a></li>
-                        <li><a href="#"><div style='margin-left: 3px; display: flex; align-items: center; width: 20px; height: 20px; background: url("images/icons/info.svg"); background-size: 20px'><span class="li-a-span">About</span></div></a></li>
+                        <li><a href="home.html">
+                            <div style='margin-left: 3px; display: flex; align-items: center; width: 20px; height: 20px; background: url("images/icons/home.svg"); background-size: 20px'>
+                                <span class="li-a-span">Home</span></div>
+                        </a></li>
+                        <li><a href="photos.html">
+                            <div style='margin-left: 3px; display: flex; align-items: center; width: 20px; height: 20px; background: url("images/icons/mode-landscape.svg"); background-size: 20px'>
+                                <span class="li-a-span">Photos</span></div>
+                        </a></li>
+                        <li><a href="#">
+                            <div style='margin-left: 3px; display: flex; align-items: center; width: 20px; height: 20px; background: url("images/icons/settings-sliders.svg"); background-size: 20px'>
+                                <span class="li-a-span">Settings</span></div>
+                        </a></li>
+                        <li><a href="#">
+                            <div style='margin-left: 3px; display: flex; align-items: center; width: 20px; height: 20px; background: url("images/icons/info.svg"); background-size: 20px'>
+                                <span class="li-a-span">About</span></div>
+                        </a></li>
                     </ul>
                 </div>
             </div>
@@ -56,8 +66,11 @@
                     <div class="headChild">
                         Photo
                     </div>
-                    <div id="addPhoto" style="width: 150px; height: 150px; background-color: green">
-
+                    <div id="addPhotoDiv" class="addPhotoDiv">
+                        <input type="file" id="addPhotoInput" class="addPhotoInput">
+                        <img src="images/icons/add-photo.svg" alt="addPhoto" style="width: 50%">
+                    </div>
+                    <div id="photosDiv" style="margin: 15px; display: flex; flex-wrap: wrap">
                     </div>
                 </div>
                 <div class="photos">

@@ -3,12 +3,13 @@ import {
     set,
     get,
     remove,
+    update,
     ref,
     getDatabase,
     onValue
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 import {
-    getStorage,
+     getStorage,
     uploadBytes,
     ref as sRef,
     getDownloadURL
@@ -94,6 +95,10 @@ export function removeLoading(loading) {
     loading.remove()
 }
 
+export async function onV(arg1, arg2) {
+    return onValue(arg1, arg2)
+}
+
 export function openModal(data){
     let body = document.getElementsByTagName("body")[0];
     let modal = document.createElement('div');
@@ -122,6 +127,38 @@ export function closeModal() {
 
 export const storage = getStorage(app);
 
-export function getFirebase(){
-    return get()
+export function getFirebase(arg){
+    return get(arg)
+}
+export function getRef(arg1, arg2){
+    return ref(arg1, arg2)
+}
+
+// export function getUserPhotos(){
+//     const stRef = sRef(storage, 'userPhoto/' + getSignedInUserUid());
+//     return getDownloadURL(stRef).then((res) => {
+//         // set(ref(db, 'usersList/' + getSignedInUserUid() + '/userPhoto'), {userPhotoURL: res});
+//         res.forEach(val => console.log(val))
+//     })
+//
+//
+// }
+
+function getUserPhotoURL(file) {
+    const storageRef = sRef(storage, 'userPhoto/' + getSignedInUserUid() + '/' + file.name);
+
+    return getDownloadURL(storageRef).then((res) => {
+        let objKey = Date.now();
+        let userPhotoURLObj = {
+            [objKey] : res
+        };
+        update(ref(db, 'usersList/' + getSignedInUserUid() + '/userPhoto'), userPhotoURLObj)
+    })
+}
+
+export function upload(file) {
+    const storageRef = sRef(storage, 'userPhoto/' + getSignedInUserUid() + '/' + file.name);
+    uploadBytes(storageRef, file).then(() => {
+        console.log(getUserPhotoURL(file))
+    })
 }
