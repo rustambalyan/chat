@@ -538,4 +538,5 @@ li:hover {
     height: 110px;
     background-color: #e8e5e5;
     border-radius: 15px;
+    display: flex;
 }

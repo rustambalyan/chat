@@ -15,6 +15,8 @@ import {
     getDownloadURL
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
+export const userPhotoContainer = document.getElementById('userPhotoContainer');
+
 export function getFirebaseConfig(){
     return {
         apiKey: "AIzaSyAcjkoMZcttxOBHOFqITeg0ajyFJhCx9OY",
@@ -130,6 +132,11 @@ export const storage = getStorage(app);
 export function getFirebase(arg){
     return get(arg)
 }
+
+export function setFirebase(arg1, arg2){
+    return set(arg1, arg2)
+}
+
 export function getRef(arg1, arg2){
     return ref(arg1, arg2)
 }
@@ -161,4 +168,20 @@ export function upload(file) {
     uploadBytes(storageRef, file).then(() => {
         console.log(getUserPhotoURL(file))
     })
+}
+
+export function upd(arg1, arg2) {
+    return update(arg1, arg2)
+}
+
+export function setUserProfilePhoto() {
+    onValue(getRef(db, 'usersList/' + getSignedInUserUid() + '/userPhotoURL'), snap => {
+        if (snap) {
+            userPhotoContainer.style.background = `url(${snap.val()})`;
+            userPhotoContainer.style.backgroundSize = '128px';
+        } else {
+            userPhotoContainer.style.background = `url("images/userImages/userImageMan.jpg")`
+        }
+    })
+
 }

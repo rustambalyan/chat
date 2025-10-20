@@ -8,20 +8,23 @@ import {
     app,
     upload,
     getFirebase,
+    setFirebase,
     getSignedInUserUid,
     checkCred,
     getUniqueId,
     userPhotoCodeForModal,
     getDateAndTime,
     signOutConfirmCodeForModal,
+    setUserProfilePhoto,
     signOut,
     removeLoading,
     openModal,
     cancel,
     getRef,
-    db, storage, onV
+    db, storage, onV, upd
     // getUserPhotos
 } from "./modules/modules.js";
+
 let currentUserPhotoURL = '';
 let recipientPhotoURL = '';
 let recipientId = '';
@@ -164,11 +167,11 @@ let userPhotosCode = `
 // }
 
 function drawPhotosDiv(param){
-    console.log('hi')
     let photo = document.createElement('div');
     photo.innerHTML = `
     <div id="photo" class="photo">
         <img src="${param}" alt="addPhoto" style="width: 100%; border-radius: 15px">
+        <span class="setAsMainPhoto" id="${param}">Set as main photo</span>
     </div>
 `;
     photosDiv.appendChild(photo);
@@ -185,8 +188,21 @@ function drawPhotosDiv(param){
 onV(getRef(db, 'usersList/' + getSignedInUserUid() + '/userPhoto'), (res => {
     photosDiv.innerHTML = ''
     res.forEach((r) => {
-        console.log(r.val());
         param = r.val();
         drawPhotosDiv(param);
     });
+    setAsMainPhoto()
 })).then()
+
+function setAsMainPhoto(){
+    let el = document.getElementsByClassName('setAsMainPhoto');
+    for (let i = 0; i < el.length; i++) {
+        el[i].addEventListener('click', ev => {
+            userPhotoURL = ev.target.id.toString();
+            upd(getRef(db, 'usersList/' + getSignedInUserUid()), {
+                userPhotoURL: userPhotoURL
+            })
+        });
+    }
+}
+setUserProfilePhoto()

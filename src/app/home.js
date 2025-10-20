@@ -1,4 +1,4 @@
-import {app, db} from "./modules/modules.js";
+import {app, db, getRef} from "./modules/modules.js";
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import {
     set,
@@ -23,6 +23,7 @@ import {
     userPhotoCodeForModal,
     getDateAndTime,
     signOutConfirmCodeForModal,
+    setUserProfilePhoto,
     signOut,
     removeLoading,
     openModal,
@@ -48,7 +49,6 @@ let messageId = '';
 let userPhotoURL = 'images/userImages/userImageMan.jpg';
 const signOutButton = document.getElementById('signOutButton');
 const selectUserParent = document.getElementById('selectUserParent');
-const userPhotoContainer = document.getElementById('userPhotoContainer');
 const userFullNameDiv = document.getElementById('userFullNameDiv');
 const messagesArea = document.getElementById('messagesArea');
 const form = document.getElementById('form');
@@ -79,7 +79,7 @@ window.onload = () => {
 
             get(ref(db, 'usersList/' + getSignedInUserUid() + '/userPhotoURL')).then((snp) => {
                 if (snp.val() !== null) {
-                    currentUserPhotoURL = snp.val().userPhotoURL.toString();
+                    currentUserPhotoURL = snp.val().userPhotoURL;
                     if (snp.exists() && snp.val().userPhotoURL) {
                         if (usersUid === getSignedInUserUid()) {
                             userPhotoContainer.style.background = `url(${snp.val().userPhotoURL})`;
@@ -99,6 +99,7 @@ window.onload = () => {
 
 
         })
+        setUserProfilePhoto()
 
         const userFullNameSpan = document.createElement('span');
         const firstName = JSON.parse(sessionStorage.getItem('user-info')).firstName;
@@ -223,15 +224,6 @@ function createReceivingMessage(message, recipientPhotoURL) {
             </div>
         </div>
     `
-}
-
-function setUserProfilePhoto(res) {
-    if (res) {
-        userPhotoContainer.style.background = `url(${res})`;
-        userPhotoContainer.style.backgroundSize = '128px';
-    } else {
-        userPhotoContainer.style.background = `url("images/userImages/userImageMan.jpg")`
-    }
 }
 
 function displaySentMessage(message) {
