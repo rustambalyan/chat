@@ -125,7 +125,6 @@ let signIn = evt => {
                         window.location.href = 'home.html'
                     }
                 }).catch((err) => {
-                    console.log(err)
                 })
             })
             .catch((err) => {

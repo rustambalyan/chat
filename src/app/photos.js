@@ -21,8 +21,7 @@ import {
     openModal,
     cancel,
     getRef,
-    db, storage, onV, upd
-    // getUserPhotos
+    db, storage, onV, upd,
 } from "./modules/modules.js";
 
 let currentUserPhotoURL = '';
@@ -133,13 +132,10 @@ window.onload = () => {
     })
 }
 
-// getUserPhotos();
 addPhotoDiv.addEventListener("click", res => {
     addPhotoInput.click();
     addPhotoInput.onchange = ev => {
         let file = ev.target.files[0]
-
-        console.log(ev.target.files[0].name)
         upload(file)
     };
 

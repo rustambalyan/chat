@@ -28,7 +28,8 @@ import {
     removeLoading,
     openModal,
     cancel,
-    storage
+    storage,
+    userPhotoContainer
 } from "./modules/modules.js";
 
 const firebaseConfig = {
@@ -62,7 +63,7 @@ window.onload = () => {
         snap.forEach(el => {
             let s = el.val();
             if (s.userPhoto !== undefined) {
-                userPhotoURL = s.userPhoto.userPhotoURL;
+                userPhotoURL = s.userPhotoURL;
             }
             const usersUid = s.uid;
             const userInfoMini = document.createElement('div');
@@ -79,17 +80,11 @@ window.onload = () => {
 
             get(ref(db, 'usersList/' + getSignedInUserUid() + '/userPhotoURL')).then((snp) => {
                 if (snp.val() !== null) {
-                    currentUserPhotoURL = snp.val().userPhotoURL;
-                    if (snp.exists() && snp.val().userPhotoURL) {
-                        if (usersUid === getSignedInUserUid()) {
-                            userPhotoContainer.style.background = `url(${snp.val().userPhotoURL})`;
-                            userPhotoContainer.style.backgroundSize = '128px';
-                            userPhotoContainer.addEventListener("click", () => {
-                                openModal(userPhotoCodeForModal(currentUserPhotoURL))
-                            })
-                        }
-
-                    }
+                    console.log(snp.val())
+                    currentUserPhotoURL = snp.val();
+                    userPhotoContainer.addEventListener("click", ev => {
+                        openModal(userPhotoCodeForModal(currentUserPhotoURL))
+                    })
                 } else {
                     userPhotoContainer.style.background = `url(images/userImages/userImageMan.jpg)`;
                     userPhotoContainer.style.backgroundSize = '128px';
@@ -167,6 +162,7 @@ function getMessageFromInput(){
     form.addEventListener('submit', (e) => {
         const messageInput = document.getElementById('messageInput');
         if (messageInput.value.replace(/\s+/g, '') !== '') {
+            console.log(getSignedInUserUid(), currentUserPhotoURL, recipientPhotoURL)
             createMessage(getSignedInUserUid(), currentUserPhotoURL, recipientPhotoURL, recipientId, messageInput.value).then();
             messageInput.value = '';
             e.preventDefault()
@@ -181,24 +177,30 @@ function createSendingMessage(data) {
         currentUserPhotoURL = 'https://firebasestorage.googleapis.com/v0/b/chatapp-5d0f0.appspot.com/o/userImageMan.jpg?alt=media&token=082bb935-b74e-4edc-8f90-77ad47ad2a0d'
     }
     return `
-            <div style="display: flex; justify-content: space-between;" id="sentMessage" class="sentMessage">
+            <div style="display: flex; justify-content: space-between; align-items: center" id="sentMessage" class="sentMessage">
                 <div style="display: flex; flex-direction: column">
-                    <div style="min-width: 260px; width: 80%; height: 100%; background-color: #4165f3; border-radius: 20px; display: flex; align-items: center">
+                    <div style="min-width: 155px; width: 80%; height: 100%; background-color: #4165f3; border-radius: 20px; display: flex; align-items: center">
                         <span>
                             <div style="padding: 3px; margin: 11px; max-width: 260px; color: white; word-wrap: break-word">${data}
                             </div>
                         </span>
                     </div>
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                    
                     <span style="color: #313030; font-size: .7rem; display: flex; justify-content: flex-end">${getDateAndTime(timeStamp)}
                     </span>
+                    <div class='sendingMessage' style="width: 13px; height: 13px">
+                        <div id="${messageId}" class="deleteMessage">
+                        </div>
+                    </div>
+                    </div>
+                    
+                    
                 </div>                    
                 <div style="width: 60px; height: 100%; display: flex; justify-content: center">
-                    <img src="${currentUserPhotoURL}" alt="senderPhotoURL" style="width: 55px; border-radius: 50px">
+                    <img src="${currentUserPhotoURL}" alt="senderPhotoURL" style="width: 30px; border-radius: 50px">
                 </div>
-                <div class='sendingMessage' style="width: 20px; height: 20px">
-                    <div id="${messageId}" class="deleteMessage">
-                    </div>
-                </div>
+                
             </div>
         `
 }
@@ -206,22 +208,27 @@ function createSendingMessage(data) {
 function createReceivingMessage(message, recipientPhotoURL) {
     return `
         <div id="receivedMessage" class="receivedMessage">
-            <div style="width: 60px; height: 100%; display: flex; justify-content: center">
-                <img src="${recipientPhotoURL}" alt="receiverPhoto" style="width: 55px; border-radius: 50px">
+            <div style="width: 40px; height: 100%; display: flex; justify-content: center">
+                <img src="${recipientPhotoURL}" alt="receiverPhoto" style="width: 30px; border-radius: 50px">
             </div>
             <div style="display: flex; flex-direction: column">
-                <div style="min-width: 260px; width: 80%; height: 100%; background-color: #e5e6ea; border-radius: 20px; display: flex; align-items: center">
-                    <span>
+                <div style="height: 100%; background-color: #e5e6ea; border-radius: 20px; display: flex; align-items: center">
+                    <span style="width: 155px">
                         <div style="padding: 3px; margin: 11px; max-width: 260px; color: black; word-wrap: break-word">${message}
                         </div>
                     </span>
                 </div>
-                <span style="color: #313030; font-size: .7rem; display: flex; justify-content: flex-end">${getDateAndTime(timeStamp)}</span>
-            </div>
-            <div class='receivingMessage' style="width: 20px; height: 20px">
+                <div style="display: flex; justify-content: space-between; justify-items: flex-end">
+                            <span style="color: #313030; font-size: .7rem; display: flex; justify-content: flex-end">${getDateAndTime(timeStamp)}</span>
+
+            <div class='receivingMessage' style="width: 13px; height: 13px">
                 <div id="${messageId}" class="deleteMessage">
                 </div>                        
             </div>
+
+</div>
+            </div>
+
         </div>
     `
 }
@@ -279,16 +286,10 @@ async function getMessages() {
 }
 
 async function createMessage(currentUserId, signedInUserPhotoUrl, recipientPhotoURL, recipientId, message) {
-    console.log(currentUserId, "currentUserId")
-    console.log(signedInUserPhotoUrl, "signedInUserPhotoUrl")
-    console.log(recipientPhotoURL, "recipientPhotoURL")
-    console.log(recipientId, "recipientId")
-    console.log(message, "message")
-
     if (signedInUserPhotoUrl === '') {
         signedInUserPhotoUrl = currentUserPhotoURL
     }
-    const uniqueId = getUniqueId()
+    const uniqueId = getUniqueId();
     await set(ref(db, 'messages/' + uniqueId), {
         senderId: currentUserId,
         senderPhotoURL: currentUserPhotoURL,
@@ -296,6 +297,7 @@ async function createMessage(currentUserId, signedInUserPhotoUrl, recipientPhoto
         recipientId: recipientId,
         messageId: uniqueId,
         messageText: message,
+        isRead: false,
         timeStamp: Date.now()
     })
 }
@@ -309,7 +311,31 @@ function deleteMessage() {
     })
 }
 
+// Notification.requestPermission().then(function (permission) {
+//     if (permission === "granted") {
+//         console.log("Notification permission granted.");
+//         // Now you can create and display notifications
+//     } else {
+//         console.log("Notification permission denied.");
+//     }
+// });
+//
+// function spawnNotification(title, body, icon) {
+//     var options = {
+//         body: body,
+//         icon: icon,
+//     };
+//     var notification = new Notification(title, options);
+//
+//     // Optional: Add event listeners for notification interactions
+//     notification.onclick = function() {
+//         console.log("Notification clicked!");
+//         // Perform actions when the notification is clicked
+//     };
+//     notification.onclose = function() {
+//         console.log("Notification closed.");
+//     };
+// }
 
-
-
-
+// Example usage after permission is granted
+// spawnNotification("New Message", "You have a new message from a friend.", "path/to/icon.png");

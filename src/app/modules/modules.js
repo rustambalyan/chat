@@ -9,7 +9,7 @@ import {
     onValue
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 import {
-     getStorage,
+    getStorage,
     uploadBytes,
     ref as sRef,
     getDownloadURL
@@ -143,12 +143,12 @@ export function getRef(arg1, arg2){
 
 // export function getUserPhotos(){
 //     const stRef = sRef(storage, 'userPhoto/' + getSignedInUserUid());
+//
 //     return getDownloadURL(stRef).then((res) => {
-//         // set(ref(db, 'usersList/' + getSignedInUserUid() + '/userPhoto'), {userPhotoURL: res});
+//         console.log(res)
+//         set(ref(db, 'usersList/' + getSignedInUserUid() + '/userPhoto'), {userPhotoURL: res});
 //         res.forEach(val => console.log(val))
 //     })
-//
-//
 // }
 
 function getUserPhotoURL(file) {
@@ -166,7 +166,7 @@ function getUserPhotoURL(file) {
 export function upload(file) {
     const storageRef = sRef(storage, 'userPhoto/' + getSignedInUserUid() + '/' + file.name);
     uploadBytes(storageRef, file).then(() => {
-        console.log(getUserPhotoURL(file))
+        return getUserPhotoURL(file)
     })
 }
 

@@ -27,7 +27,6 @@ form.addEventListener('submit', sendResetEmail)
 function sendResetEmail(evt) {
     evt.preventDefault();
     const email = document.getElementById('email');
-    console.log(email);
     sendPasswordResetEmail(auth, email.value)
         .then(() => {
             // Email для сброса пароля был успешно отправлен
